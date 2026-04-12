@@ -12,7 +12,7 @@ const FONT = "'Tajawal', sans-serif";
 const SA_CITIES = ["الرياض","جدة","مكة","المدينة","الدمام","الخبر","أبها","تبوك","حائل","القصيم","الطائف","جازان","نجران","الجبيل","ينبع","خميس مشيط","الأحساء","بريدة"];
 const CAR_MAKES = ["تويوتا","نيسان","هيونداي","كيا","فورد","شيفروليه","جي إم سي","هوندا","جيب","مرسيدس","لكزس","أخرى"];
 const AGES = Array.from({length:53},(_,i)=>String(i+18));
-const TRAVELERS = [{id:1,name:"عبدالله المطيري",rating:4.8,car:"كامري 2023",from:"الدمام",to:"الرياض",time:"اليوم 4 م",price:80,avatar:"ع"},{id:2,name:"فهد العتيبي",rating:4.5,car:"هايلكس 2022",from:"الدمام",to:"الرياض",time:"اليوم 5:30 م",price:65,avatar:"ف"},{id:3,name:"سعود الدوسري",rating:4.9,car:"اكسبدشن 2024",from:"الدمام",to:"الرياض",time:"غداً 8 ص",price:95,avatar:"س"}];
+const TRAVELERS = [{id:1,name:"عبدالله المطيري",rating:4.8,car:"كامري 2023",from:"الدمام",to:"الرياض",time:"اليوم 4 م",price:80,avatar:"ع"},{id:2,name:"اسامة العجمي",rating:4.5,car:"هايلكس 2022",from:"الدمام",to:"الرياض",time:"اليوم 5:30 م",price:65,avatar:"ف"},{id:3,name:"سعود الدوسري",rating:4.9,car:"اكسبدشن 2024",from:"الدمام",to:"الرياض",time:"غداً 8 ص",price:95,avatar:"س"}];
 const INIT_ORDERS = [{id:101,item:"جوال آيفون 15",size:"صغير",from:"الدمام",to:"الرياض",status:"بالطريق",traveler:TRAVELERS[0],price:80,date:"٩ أبريل",fragile:false},{id:102,item:"شنطة ملابس",size:"متوسط",from:"جدة",to:"الرياض",status:"تم التسليم",traveler:TRAVELERS[2],price:95,date:"٧ أبريل",fragile:false}];
 const SIZES = ["صغير 📱","متوسط 🎒","كبير 🪑","كبير جداً 🛋️"];
 const DEL_TYPES = ["نقطة لقاء 🤝","توصيل للباب 🚪"];
