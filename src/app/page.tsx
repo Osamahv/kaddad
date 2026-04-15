@@ -48,7 +48,7 @@ function Picker({value,onChange,options,placeholder}){
 function FileUpload({label,preview,onFile,icon="📷"}){const ref=useRef();return <div><input ref={ref} type="file" accept="image/*" onChange={e=>{const f=e.target.files?.[0];if(f){const r=new FileReader();r.onload=ev=>onFile(ev.target.result);r.readAsDataURL(f)}}} style={{display:"none"}}/><div onClick={()=>ref.current?.click()} style={{border:`2px dashed ${preview?C.pri:C.brd}`,borderRadius:18,padding:preview?0:28,cursor:"pointer",textAlign:"center",overflow:"hidden",background:preview?"#000":C.srf,minHeight:100,display:"flex",alignItems:"center",justifyContent:"center"}}>{preview?<img src={preview} alt="" style={{width:"100%",maxHeight:160,objectFit:"cover",borderRadius:16}}/>:<div><div style={{fontSize:28,marginBottom:6}}>{icon}</div><div style={{fontSize:13,color:C.mut}}>{label}</div></div>}</div></div>}
  
 function LandingPage({onStart}){
-  return <div style={{fontFamily:FONT,direction:"rtl",height:"100vh",overflow:"auto",background:C.crm}}><style>{GCSS}</style>
+  return <div style={{fontFamily:FONT,direction:"rtl",height:"100vh",overflow:"auto",background:C.crm}}>
     <nav style={{padding:"14px 24px",display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:38,height:38,borderRadius:12,background:`linear-gradient(135deg,${C.pri},${C.priG})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:900,fontSize:18}}>ك</div><span style={{fontSize:22,fontWeight:900,color:C.dk}}>كدّاد</span></div><button onClick={onStart} style={{padding:"10px 24px",background:C.dk,color:"#fff",border:"none",borderRadius:12,fontSize:14,fontWeight:700,fontFamily:FONT,cursor:"pointer"}}>سجّل الحين</button></nav>
     <div style={{padding:"40px 24px 56px",textAlign:"center"}}><div style={{fontSize:72,marginBottom:28}}>🚗💨📦</div><h1 style={{fontSize:34,fontWeight:900,color:C.dk,lineHeight:1.4,marginBottom:16}}>كل رحلة بين المدن<br/><span style={{color:C.pri}}>فرصة توصيل</span></h1><p style={{fontSize:16,color:C.mut,maxWidth:340,margin:"0 auto 32px",lineHeight:1.7}}>أرسل أغراضك مع مسافر — أسرع وأرخص</p><button onClick={onStart} style={{padding:"16px 36px",background:`linear-gradient(135deg,${C.pri},${C.priG})`,color:"#fff",border:"none",borderRadius:16,fontSize:17,fontWeight:800,fontFamily:FONT,cursor:"pointer"}}>ابدأ الحين 🚀</button></div>
     <div style={{padding:"44px 24px",background:"#fff"}}><h2 style={{fontSize:26,fontWeight:900,color:C.dk,textAlign:"center",marginBottom:32}}>ليش كدّاد؟</h2><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>{[["⚡","توصيل نفس اليوم"],["💰","سعر أقل"],["📦","أي حجم"],["🛡️","أمان وثقة"]].map(([ic,t],i)=><div key={i} style={{background:C.crm,borderRadius:20,padding:"24px 18px",textAlign:"center"}}><div style={{fontSize:32,marginBottom:10}}>{ic}</div><div style={{fontSize:15,fontWeight:800,color:C.dk}}>{t}</div></div>)}</div></div>
@@ -57,7 +57,7 @@ function LandingPage({onStart}){
 }
  
 function RoleSelectPage({onSelect,onBack}){
-  return <div style={{minHeight:"100vh",background:`linear-gradient(165deg,${C.dk},${C.priD})`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24,fontFamily:FONT,direction:"rtl"}}><style>{GCSS}</style>
+  return <div style={{minHeight:"100vh",background:`linear-gradient(165deg,${C.dk},${C.priD})`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24,fontFamily:FONT,direction:"rtl"}}>
     <div style={{textAlign:"center",marginBottom:36}}><div style={{fontSize:48,marginBottom:8}}>🚗📦</div><h1 style={{color:"#fff",fontSize:28,fontWeight:900}}>كيف تبغى تستخدم كدّاد؟</h1></div>
     <div style={{display:"flex",flexDirection:"column",gap:16,width:"100%",maxWidth:400}}>
       {[["sender","📦","أبغى أرسل غرض","أرسل أغراضي مع مسافر"],["driver","🚗","أبغى أكون كدّاد","أوصّل واكسب"]].map(([id,em,t,d])=><button key={id} onClick={()=>onSelect(id)} style={{display:"flex",alignItems:"center",gap:18,padding:"24px 22px",background:"rgba(255,255,255,0.06)",border:"2px solid rgba(255,255,255,0.1)",borderRadius:22,cursor:"pointer",textAlign:"right"}}><div style={{fontSize:44}}>{em}</div><div style={{flex:1}}><div style={{fontSize:18,fontWeight:800,color:"#fff",fontFamily:FONT}}>{t}</div><div style={{fontSize:13,color:"rgba(255,255,255,0.5)",fontFamily:FONT,marginTop:4}}>{d}</div></div></button>)}
@@ -73,7 +73,7 @@ function RegisterPage({role,onComplete,onBack}){
   const isD=role==="driver";const basicOk=name.trim()&&phone.length>=9&&email.includes("@")&&age&&city;const driverOk=basicOk&&carMake&&carModel&&carPlate&&idPhoto&&regPhoto;
   const ac=isD?C.acc:C.pri;const ag=isD?C.accW:C.priG;const ud={name,phone,email,age,city,carMake,carModel,carPlate,role,idPhoto,regPhoto};
  
-  if(step===1) return <div style={{minHeight:"100vh",background:C.bg,fontFamily:FONT,direction:"rtl"}}><style>{GCSS}</style>
+  if(step===1) return <div style={{minHeight:"100vh",background:C.bg,fontFamily:FONT,direction:"rtl"}}>
     <div style={{padding:"20px 16px 30px",background:`linear-gradient(135deg,${ac},${ag})`,color:"#fff"}}>
       <button onClick={onBack} style={{background:"none",border:"none",color:"rgba(255,255,255,0.7)",fontSize:14,fontFamily:FONT,cursor:"pointer",marginBottom:12}}>← رجوع</button>
       <div style={{fontSize:36,marginBottom:8}}>{isD?"🚗":"📦"}</div><h1 style={{fontSize:24,fontWeight:900,margin:0}}>تسجيل {isD?"كدّاد":"مرسل"}</h1>
@@ -89,7 +89,7 @@ function RegisterPage({role,onComplete,onBack}){
       <button onClick={()=>isD?setStep(2):onComplete(ud)} disabled={!basicOk} style={{width:"100%",padding:18,background:basicOk?`linear-gradient(135deg,${ac},${ag})`:C.brd,color:"#fff",border:"none",borderRadius:18,fontSize:17,fontWeight:700,fontFamily:FONT,cursor:basicOk?"pointer":"default",marginTop:28}}>{isD?"التالي — بيانات السيارة →":"إنشاء حساب ✨"}</button>
     </div></div>;
  
-  return <div style={{minHeight:"100vh",background:C.bg,fontFamily:FONT,direction:"rtl"}}><style>{GCSS}</style>
+  return <div style={{minHeight:"100vh",background:C.bg,fontFamily:FONT,direction:"rtl"}}>
     <div style={{padding:"20px 16px 30px",background:`linear-gradient(135deg,${C.acc},${C.accW})`,color:"#fff"}}>
       <button onClick={()=>setStep(1)} style={{background:"none",border:"none",color:"rgba(255,255,255,0.7)",fontSize:14,fontFamily:FONT,cursor:"pointer",marginBottom:12}}>← رجوع</button>
       <div style={{fontSize:36,marginBottom:8}}>🚗</div><h1 style={{fontSize:24,fontWeight:900,margin:0}}>بيانات السيارة والتوثيق</h1>
@@ -191,6 +191,6 @@ export default function KaddadApp(){
     default: return <HomeScreen navigate={navigate} role={role} orders={orders} user={user}/>;
   }};
  
-  return <div style={{maxWidth:430,margin:"0 auto",background:C.bg,minHeight:"100vh",position:"relative"}}><style>{GCSS}</style>{renderScreen()}{!["chat","chatList"].includes(screen)&&<div style={{position:"fixed",bottom:0,left:0,right:0,background:"#fff",borderTop:`1px solid ${C.brd}`,display:"flex",justifyContent:"space-around",padding:"8px 0 12px",zIndex:100,fontFamily:FONT}}>{tabs.map(([id,emoji,label])=><button key={id} onClick={()=>navigate(id)} style={{background:"none",border:"none",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:3,color:screen===id?C.pri:C.mut,fontFamily:FONT}}><span style={{fontSize:20,transform:screen===id?"scale(1.2)":"scale(1)",transition:"transform .15s"}}>{emoji}</span><span style={{fontSize:10,fontWeight:screen===id?700:500}}>{label}</span></button>)}</div>}</div>;
+  return <div style={{maxWidth:430,margin:"0 auto",background:C.bg,minHeight:"100vh",position:"relative"}}>{renderScreen()}{!["chat","chatList"].includes(screen)&&<div style={{position:"fixed",bottom:0,left:0,right:0,background:"#fff",borderTop:`1px solid ${C.brd}`,display:"flex",justifyContent:"space-around",padding:"8px 0 12px",zIndex:100,fontFamily:FONT}}>{tabs.map(([id,emoji,label])=><button key={id} onClick={()=>navigate(id)} style={{background:"none",border:"none",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:3,color:screen===id?C.pri:C.mut,fontFamily:FONT}}><span style={{fontSize:20,transform:screen===id?"scale(1.2)":"scale(1)",transition:"transform .15s"}}>{emoji}</span><span style={{fontSize:10,fontWeight:screen===id?700:500}}>{label}</span></button>)}</div>}</div>;
 }
  
