@@ -2,373 +2,229 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-/* ── Supabase Client ── */
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(
+  "https://nanbjdtzawynwubieikr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hbmJqZHR6YXd5bnd1YmllaWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MDkyNDQsImV4cCI6MjA5MTQ4NTI0NH0.15GJSu1ZYTUeCu2P8nLP83f2bcPV3t_p9NNf0RuUCN0"
+);
 
-/* ── Colors ── */
-const C = {
-  pri:"#0E8A7D",priD:"#065E54",priG:"#0FC2AF",priL:"#CCFBF1",
-  acc:"#F5A623",accW:"#FF8C42",accL:"#FEF3C7",
-  bg:"#FAFBFC",card:"#FFF",txt:"#112226",mut:"#6B8289",
-  brd:"#E2EAED",ok:"#12B886",err:"#EF5350",srf:"#EFF4F5",
-  dk:"#0C1F23",crm:"#F7F3ED"
-};
-const FONT = "'Tajawal',sans-serif";
-const SA_CITIES = ["الرياض","جدة","مكة","المدينة","الدمام","الخبر","أبها","تبوك","حائل","القصيم","الطائف","جازان","نجران","الجبيل","ينبع","خميس مشيط","الأحساء","بريدة"];
-const CAR_MAKES = ["تويوتا","نيسان","هيونداي","كيا","فورد","شيفروليه","جي إم سي","هوندا","جيب","مرسيدس","لكزس","أخرى"];
-const AGES = Array.from({length:53},(_,i)=>String(i+18));
-const SIZES = ["صغير 📱","متوسط 🎒","كبير 🪑","كبير جداً 🛋️"];
-const DEL_TYPES = ["نقطة لقاء 🤝","توصيل للباب 🚪"];
-const GCSS = `@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');*{box-sizing:border-box;margin:0;padding:0}body{margin:0;background:#E2EAED}::-webkit-scrollbar{width:0}input,textarea,button,select{font-family:'Tajawal',sans-serif}`;
+const C:any={pri:"#0E8A7D",priD:"#065E54",priG:"#0FC2AF",priL:"#CCFBF1",acc:"#F5A623",accW:"#FF8C42",accL:"#FEF3C7",bg:"#FAFBFC",card:"#FFF",txt:"#112226",mut:"#6B8289",brd:"#E2EAED",ok:"#12B886",err:"#EF5350",srf:"#EFF4F5",dk:"#0C1F23",crm:"#F7F3ED"};
+const FN="'Tajawal',sans-serif";
+const CITIES=["الرياض","جدة","مكة","المدينة","الدمام","الخبر","أبها","تبوك","حائل","القصيم","الطائف","جازان","نجران","الجبيل","ينبع","خميس مشيط","الأحساء","بريدة"];
+const CARS=["تويوتا","نيسان","هيونداي","كيا","فورد","شيفروليه","هوندا","جيب","مرسيدس","لكزس","أخرى"];
+const AGES=Array.from({length:53},(_:any,i:number)=>String(i+18));
+const SIZES=["صغير 📱","متوسط 🎒","كبير 🪑","كبير جداً 🛋️"];
+const DTYPES=["نقطة لقاء 🤝","توصيل للباب 🚪"];
+const CSS=`@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');*{box-sizing:border-box;margin:0;padding:0}body{margin:0;background:#E2EAED}::-webkit-scrollbar{width:0}input,textarea,button,select{font-family:'Tajawal',sans-serif}`;
 
-/* ── Helper: Upload image to Supabase Storage ── */
-async function uploadImage(file: File, folder: string): Promise<string|null> {
-  const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2)}`;
-  const { error } = await supabase.storage.from("uploads").upload(fileName, file);
-  if (error) { console.error("Upload error:", error); return null; }
-  const { data } = supabase.storage.from("uploads").getPublicUrl(fileName);
-  return data.publicUrl;
+async function uploadImg(file:File,folder:string){const n=`${folder}/${Date.now()}_${Math.random().toString(36).slice(2)}`;const{error}=await supabase.storage.from("uploads").upload(n,file);if(error)return null;const{data}=supabase.storage.from("uploads").getPublicUrl(n);return data.publicUrl}
+
+function Av({l,s=44,bg=C.pri}:any){return<div style={{width:s,height:s,borderRadius:"50%",background:bg,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:s*0.4,fontFamily:FN,flexShrink:0}}>{l}</div>}
+function Badge({st}:any){const m:any={"بالطريق":{bg:"#DBEAFE",c:"#1D4ED8",i:"🚗"},"تم التسليم":{bg:"#D1FAE5",c:"#065F46",i:"✅"},pending:{bg:"#FEF3C7",c:"#92400E",i:"⏳"}};const s=m[st]||m.pending;return<span style={{background:s.bg,color:s.c,padding:"4px 12px",borderRadius:20,fontSize:12,fontWeight:600}}>{s.i} {st==="pending"?"بانتظار القبول":st}</span>}
+function Hdr({t,onBack}:any){return<div style={{padding:"14px 16px",background:"#fff",borderBottom:`1px solid ${C.brd}`,display:"flex",alignItems:"center",gap:12,position:"sticky",top:0,zIndex:10}}><button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",display:"flex",padding:4}}><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg></button><h2 style={{margin:0,fontSize:19,fontWeight:700,fontFamily:FN}}>{t}</h2></div>}
+function Lbl({children,req}:any){return<div style={{fontSize:14,fontWeight:700,color:C.txt,marginBottom:8,marginTop:20,fontFamily:FN}}>{children}{req&&<span style={{color:C.err}}> *</span>}</div>}
+function Inp({placeholder,value,onChange,type="text",dir}:any){return<input placeholder={placeholder} value={value} onChange={onChange} type={type} dir={dir} style={{width:"100%",padding:"13px 16px",border:`2px solid ${C.brd}`,borderRadius:14,fontSize:15,fontFamily:FN,outline:"none",boxSizing:"border-box" as any,background:"#fff"}}/>}
+function GS({opts,val,onChange,cols=2,ac=C.pri,acBg=C.priL}:any){return<div style={{display:"grid",gridTemplateColumns:`repeat(${cols},1fr)`,gap:10}}>{opts.map((o:string)=><button key={o} onClick={()=>onChange(o)} style={{padding:"12px 8px",borderRadius:14,border:`2px solid ${val===o?ac:C.brd}`,background:val===o?acBg:"#fff",color:val===o?ac:C.txt,fontSize:14,fontWeight:600,fontFamily:FN,cursor:"pointer"}}>{o}</button>)}</div>}
+
+function Picker({value,onChange,options,placeholder}:any){
+  const[open,setOpen]=useState(false);
+  return<><div onClick={()=>setOpen(true)} style={{width:"100%",padding:"13px 16px",border:`2px solid ${C.brd}`,borderRadius:14,fontSize:15,fontFamily:FN,boxSizing:"border-box" as any,background:"#fff",color:value?C.txt:C.mut,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}><span>{value||placeholder}</span><svg width="16" height="16" fill="none" stroke={C.mut} strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg></div>
+  {open&&<div onClick={()=>setOpen(false)} style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.5)",zIndex:9999,display:"flex",alignItems:"flex-end",justifyContent:"center"}}><div onClick={(e:any)=>e.stopPropagation()} style={{background:"#fff",borderRadius:"24px 24px 0 0",width:"100%",maxWidth:430,maxHeight:"70vh",display:"flex",flexDirection:"column"}}><div style={{padding:"16px 20px",borderBottom:`1px solid ${C.brd}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}><span style={{fontSize:17,fontWeight:800,fontFamily:FN}}>{placeholder}</span><button onClick={()=>setOpen(false)} style={{background:C.srf,border:"none",borderRadius:10,padding:"6px 14px",fontSize:14,fontWeight:700,fontFamily:FN,cursor:"pointer",color:C.mut}}>إغلاق</button></div><div style={{overflow:"auto",flex:1}}>{options.map((o:string)=><div key={o} onClick={()=>{onChange(o);setOpen(false)}} style={{padding:"14px 20px",fontSize:16,fontFamily:FN,color:value===o?C.pri:C.txt,background:value===o?C.priL:"transparent",borderBottom:`1px solid ${C.brd}`,cursor:"pointer",fontWeight:value===o?700:400,display:"flex",justifyContent:"space-between"}}><span>{o}</span>{value===o&&<span style={{color:C.pri}}>✓</span>}</div>)}</div></div></div>}</>
 }
 
-/* ── Shared Components ── */
-function Avatar({letter,size=44,bg=C.pri}: {letter:string,size?:number,bg?:string}){return <div style={{width:size,height:size,borderRadius:"50%",background:bg,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:size*0.4,fontFamily:FONT,flexShrink:0}}>{letter}</div>}
-function StatusBadge({status}:{status:string}){const m:any={"بالطريق":{bg:"#DBEAFE",c:"#1D4ED8",i:"🚗"},"تم التسليم":{bg:"#D1FAE5",c:"#065F46",i:"✅"},"pending":{bg:"#FEF3C7",c:"#92400E",i:"⏳"}};const s=m[status]||m["pending"];return <span style={{background:s.bg,color:s.c,padding:"4px 12px",borderRadius:20,fontSize:12,fontWeight:600,fontFamily:FONT}}>{s.i} {status==="pending"?"بانتظار القبول":status}</span>}
-function PageHeader({title,onBack}:{title:string,onBack:()=>void}){return <div style={{padding:"14px 16px",background:"#fff",borderBottom:`1px solid ${C.brd}`,display:"flex",alignItems:"center",gap:12,position:"sticky",top:0,zIndex:10}}><button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",display:"flex",padding:4}}><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg></button><h2 style={{margin:0,fontSize:19,fontWeight:700,fontFamily:FONT}}>{title}</h2></div>}
-function FieldLabel({children,required}:{children:any,required?:boolean}){return <div style={{fontSize:14,fontWeight:700,color:C.txt,marginBottom:8,marginTop:20,fontFamily:FONT}}>{children}{required&&<span style={{color:C.err}}> *</span>}</div>}
-function TextInput({placeholder,value,onChange,type="text",dir}:{placeholder:string,value:string,onChange:any,type?:string,dir?:string}){return <input placeholder={placeholder} value={value} onChange={onChange} type={type} dir={dir} style={{width:"100%",padding:"13px 16px",border:`2px solid ${C.brd}`,borderRadius:14,fontSize:15,fontFamily:FONT,outline:"none",boxSizing:"border-box",background:"#fff"}} onFocus={(e:any)=>e.target.style.borderColor=C.pri} onBlur={(e:any)=>e.target.style.borderColor=C.brd}/>}
-function GridSelect({options,value,onChange,cols=2,ac=C.pri,acBg=C.priL}:{options:string[],value:string,onChange:(v:string)=>void,cols?:number,ac?:string,acBg?:string}){return <div style={{display:"grid",gridTemplateColumns:`repeat(${cols},1fr)`,gap:10}}>{options.map(o=><button key={o} onClick={()=>onChange(o)} style={{padding:"12px 8px",borderRadius:14,border:`2px solid ${value===o?ac:C.brd}`,background:value===o?acBg:"#fff",color:value===o?ac:C.txt,fontSize:14,fontWeight:600,fontFamily:FONT,cursor:"pointer"}}>{o}</button>)}</div>}
-
-function Picker({value,onChange,options,placeholder}:{value:string,onChange:(v:string)=>void,options:string[],placeholder:string}){
-  const[isOpen,setIsOpen]=useState(false);
-  return <>
-    <div onClick={()=>setIsOpen(true)} style={{width:"100%",padding:"13px 16px",border:`2px solid ${C.brd}`,borderRadius:14,fontSize:15,fontFamily:FONT,boxSizing:"border-box",background:"#fff",color:value?C.txt:C.mut,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-      <span>{value||placeholder}</span>
-      <svg width="16" height="16" fill="none" stroke={C.mut} strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
-    </div>
-    {isOpen&&<div onClick={()=>setIsOpen(false)} style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.5)",zIndex:9999,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div onClick={(e:any)=>e.stopPropagation()} style={{background:"#fff",borderRadius:"24px 24px 0 0",width:"100%",maxWidth:430,maxHeight:"70vh",display:"flex",flexDirection:"column"}}>
-        <div style={{padding:"16px 20px",borderBottom:`1px solid ${C.brd}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <span style={{fontSize:17,fontWeight:800,color:C.txt,fontFamily:FONT}}>{placeholder}</span>
-          <button onClick={()=>setIsOpen(false)} style={{background:C.srf,border:"none",borderRadius:10,padding:"6px 14px",fontSize:14,fontWeight:700,fontFamily:FONT,cursor:"pointer",color:C.mut}}>إغلاق</button>
-        </div>
-        <div style={{overflow:"auto",flex:1}}>{options.map(opt=><div key={opt} onClick={()=>{onChange(opt);setIsOpen(false)}} style={{padding:"14px 20px",fontSize:16,fontFamily:FONT,color:value===opt?C.pri:C.txt,background:value===opt?C.priL:"transparent",borderBottom:`1px solid ${C.brd}`,cursor:"pointer",fontWeight:value===opt?700:400,display:"flex",justifyContent:"space-between",alignItems:"center"}}><span>{opt}</span>{value===opt&&<span style={{color:C.pri}}>✓</span>}</div>)}</div>
-      </div>
-    </div>}
-  </>
+function FUp({label,preview,onFile,icon="📷"}:any){
+  const ref=useRef<any>(null);
+  return<div><input ref={ref} type="file" accept="image/*" onChange={(e:any)=>{const f=e.target.files?.[0];if(f){const r=new FileReader();r.onload=(ev:any)=>onFile(ev.target.result,f);r.readAsDataURL(f)}}} style={{display:"none"}}/>
+  <div onClick={()=>ref.current?.click()} style={{border:`2px dashed ${preview?C.pri:C.brd}`,borderRadius:18,padding:preview?0:28,cursor:"pointer",textAlign:"center" as any,overflow:"hidden",background:preview?"#000":C.srf,minHeight:100,display:"flex",alignItems:"center",justifyContent:"center"}}>{preview?<img src={preview} alt="" style={{width:"100%",maxHeight:160,objectFit:"cover" as any,borderRadius:16}}/>:<div><div style={{fontSize:28,marginBottom:6}}>{icon}</div><div style={{fontSize:13,color:C.mut}}>{label}</div></div>}</div></div>
 }
 
-function FileUpload({label,preview,onFile,icon="📷"}:{label:string,preview:string|null,onFile:(v:string,f:File)=>void,icon?:string}){
-  const ref=useRef<HTMLInputElement>(null);
-  return <div><input ref={ref} type="file" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0];if(f){const r=new FileReader();r.onload=(ev:any)=>onFile(ev.target.result,f);r.readAsDataURL(f)}}} style={{display:"none"}}/>
-    <div onClick={()=>ref.current?.click()} style={{border:`2px dashed ${preview?C.pri:C.brd}`,borderRadius:18,padding:preview?0:28,cursor:"pointer",textAlign:"center",overflow:"hidden",background:preview?"#000":C.srf,minHeight:100,display:"flex",alignItems:"center",justifyContent:"center"}}>
-      {preview?<img src={preview} alt="" style={{width:"100%",maxHeight:160,objectFit:"cover",borderRadius:16}}/>:<div><div style={{fontSize:28,marginBottom:6}}>{icon}</div><div style={{fontSize:13,color:C.mut}}>{label}</div></div>}
-    </div>
-  </div>
+function Landing({onStart,onLogin}:any){
+  return<div style={{fontFamily:FN,direction:"rtl" as any,height:"100vh",overflow:"auto",background:C.crm}}><style>{CSS}</style>
+  <nav style={{padding:"14px 24px",display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:38,height:38,borderRadius:12,background:`linear-gradient(135deg,${C.pri},${C.priG})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:900,fontSize:18}}>ك</div><span style={{fontSize:22,fontWeight:900,color:C.dk}}>كدّاد</span></div><div style={{display:"flex",gap:8}}><button onClick={onLogin} style={{padding:"10px 20px",background:"transparent",color:C.dk,border:`2px solid ${C.brd}`,borderRadius:12,fontSize:14,fontWeight:700,fontFamily:FN,cursor:"pointer"}}>دخول</button><button onClick={onStart} style={{padding:"10px 20px",background:C.dk,color:"#fff",border:"none",borderRadius:12,fontSize:14,fontWeight:700,fontFamily:FN,cursor:"pointer"}}>تسجيل</button></div></nav>
+  <div style={{padding:"40px 24px 56px",textAlign:"center" as any}}><div style={{fontSize:72,marginBottom:28}}>🚗💨📦</div><h1 style={{fontSize:34,fontWeight:900,color:C.dk,lineHeight:1.4,marginBottom:16}}>كل رحلة بين المدن<br/><span style={{color:C.pri}}>فرصة توصيل</span></h1><p style={{fontSize:16,color:C.mut,maxWidth:340,margin:"0 auto 32px",lineHeight:1.7}}>أرسل أغراضك مع مسافر — أسرع وأرخص</p><button onClick={onStart} style={{padding:"16px 36px",background:`linear-gradient(135deg,${C.pri},${C.priG})`,color:"#fff",border:"none",borderRadius:16,fontSize:17,fontWeight:800,fontFamily:FN,cursor:"pointer"}}>ابدأ الحين 🚀</button></div>
+  <div style={{padding:"44px 24px",background:"#fff"}}><h2 style={{fontSize:26,fontWeight:900,color:C.dk,textAlign:"center" as any,marginBottom:32}}>ليش كدّاد؟</h2><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>{[["⚡","توصيل نفس اليوم"],["💰","سعر أقل"],["📦","أي حجم"],["🛡️","أمان وثقة"]].map(([ic,t]:any,i:number)=><div key={i} style={{background:C.crm,borderRadius:20,padding:"24px 18px",textAlign:"center" as any}}><div style={{fontSize:32,marginBottom:10}}>{ic}</div><div style={{fontSize:15,fontWeight:800,color:C.dk}}>{t}</div></div>)}</div></div>
+  <div style={{padding:"48px 24px 56px",background:C.dk,textAlign:"center" as any}}><h2 style={{fontSize:28,fontWeight:900,color:"#fff",marginBottom:12}}>جاهز تبدأ؟</h2><button onClick={onStart} style={{padding:"16px 48px",background:`linear-gradient(135deg,${C.pri},${C.priG})`,color:"#fff",border:"none",borderRadius:16,fontSize:17,fontWeight:800,fontFamily:FN,cursor:"pointer"}}>سجّل الحين</button></div></div>
 }
 
-/* ══════ LANDING ══════ */
-function LandingPage({onStart}:{onStart:()=>void}){
-  return <div style={{fontFamily:FONT,direction:"rtl",height:"100vh",overflow:"auto",background:C.crm}}><style>{GCSS}</style>
-    <nav style={{padding:"14px 24px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-      <div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:38,height:38,borderRadius:12,background:`linear-gradient(135deg,${C.pri},${C.priG})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:900,fontSize:18}}>ك</div><span style={{fontSize:22,fontWeight:900,color:C.dk}}>كدّاد</span></div>
-      <button onClick={onStart} style={{padding:"10px 24px",background:C.dk,color:"#fff",border:"none",borderRadius:12,fontSize:14,fontWeight:700,fontFamily:FONT,cursor:"pointer"}}>سجّل الحين</button>
-    </nav>
-    <div style={{padding:"40px 24px 56px",textAlign:"center"}}>
-      <div style={{fontSize:72,marginBottom:28}}>🚗💨📦</div>
-      <h1 style={{fontSize:34,fontWeight:900,color:C.dk,lineHeight:1.4,marginBottom:16}}>كل رحلة بين المدن<br/><span style={{color:C.pri}}>فرصة توصيل</span></h1>
-      <p style={{fontSize:16,color:C.mut,maxWidth:340,margin:"0 auto 32px",lineHeight:1.7}}>أرسل أغراضك مع مسافر — أسرع وأرخص</p>
-      <button onClick={onStart} style={{padding:"16px 36px",background:`linear-gradient(135deg,${C.pri},${C.priG})`,color:"#fff",border:"none",borderRadius:16,fontSize:17,fontWeight:800,fontFamily:FONT,cursor:"pointer"}}>ابدأ الحين 🚀</button>
-    </div>
-    <div style={{padding:"44px 24px",background:"#fff"}}><h2 style={{fontSize:26,fontWeight:900,color:C.dk,textAlign:"center",marginBottom:32}}>ليش كدّاد؟</h2><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>{[["⚡","توصيل نفس اليوم"],["💰","سعر أقل"],["📦","أي حجم"],["🛡️","أمان وثقة"]].map(([ic,t],i)=><div key={i} style={{background:C.crm,borderRadius:20,padding:"24px 18px",textAlign:"center"}}><div style={{fontSize:32,marginBottom:10}}>{ic}</div><div style={{fontSize:15,fontWeight:800,color:C.dk}}>{t}</div></div>)}</div></div>
-    <div style={{padding:"48px 24px 56px",background:C.dk,textAlign:"center"}}><h2 style={{fontSize:28,fontWeight:900,color:"#fff",marginBottom:12}}>جاهز تبدأ؟</h2><button onClick={onStart} style={{padding:"16px 48px",background:`linear-gradient(135deg,${C.pri},${C.priG})`,color:"#fff",border:"none",borderRadius:16,fontSize:17,fontWeight:800,fontFamily:FONT,cursor:"pointer"}}>سجّل الحين</button></div>
-  </div>
+function RoleSelect({onPick,onBack}:any){
+  return<div style={{minHeight:"100vh",background:`linear-gradient(165deg,${C.dk},${C.priD})`,display:"flex",flexDirection:"column" as any,alignItems:"center",justifyContent:"center",padding:24,fontFamily:FN,direction:"rtl" as any}}><style>{CSS}</style>
+  <div style={{textAlign:"center" as any,marginBottom:36}}><div style={{fontSize:48,marginBottom:8}}>🚗📦</div><h1 style={{color:"#fff",fontSize:28,fontWeight:900}}>كيف تبغى تستخدم كدّاد؟</h1></div>
+  <div style={{display:"flex",flexDirection:"column" as any,gap:16,width:"100%",maxWidth:400}}>
+  {[["sender","📦","أبغى أرسل غرض"],["driver","🚗","أبغى أكون كدّاد"]].map(([id,em,t]:any)=><button key={id} onClick={()=>onPick(id)} style={{display:"flex",alignItems:"center",gap:18,padding:"24px 22px",background:"rgba(255,255,255,0.06)",border:"2px solid rgba(255,255,255,0.1)",borderRadius:22,cursor:"pointer",textAlign:"right" as any}}><div style={{fontSize:44}}>{em}</div><div style={{fontSize:18,fontWeight:800,color:"#fff",fontFamily:FN}}>{t}</div></button>)}
+  </div><button onClick={onBack} style={{marginTop:20,background:"none",border:"none",color:"rgba(255,255,255,0.4)",fontSize:14,fontFamily:FN,cursor:"pointer"}}>← رجوع</button></div>
 }
 
-/* ══════ ROLE SELECT ══════ */
-function RoleSelectPage({onSelect,onBack}:{onSelect:(r:string)=>void,onBack:()=>void}){
-  return <div style={{minHeight:"100vh",background:`linear-gradient(165deg,${C.dk},${C.priD})`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24,fontFamily:FONT,direction:"rtl"}}><style>{GCSS}</style>
-    <div style={{textAlign:"center",marginBottom:36}}><div style={{fontSize:48,marginBottom:8}}>🚗📦</div><h1 style={{color:"#fff",fontSize:28,fontWeight:900}}>كيف تبغى تستخدم كدّاد؟</h1></div>
-    <div style={{display:"flex",flexDirection:"column",gap:16,width:"100%",maxWidth:400}}>
-      {[["sender","📦","أبغى أرسل غرض","أرسل أغراضي مع مسافر"],["driver","🚗","أبغى أكون كدّاد","أوصّل واكسب"]].map(([id,em,t,d])=><button key={id} onClick={()=>onSelect(id)} style={{display:"flex",alignItems:"center",gap:18,padding:"24px 22px",background:"rgba(255,255,255,0.06)",border:"2px solid rgba(255,255,255,0.1)",borderRadius:22,cursor:"pointer",textAlign:"right"}}><div style={{fontSize:44}}>{em}</div><div style={{flex:1}}><div style={{fontSize:18,fontWeight:800,color:"#fff",fontFamily:FONT}}>{t}</div><div style={{fontSize:13,color:"rgba(255,255,255,0.5)",fontFamily:FONT,marginTop:4}}>{d}</div></div></button>)}
-    </div>
-    <button onClick={onBack} style={{marginTop:20,background:"none",border:"none",color:"rgba(255,255,255,0.4)",fontSize:14,fontFamily:FONT,cursor:"pointer"}}>← رجوع</button>
-  </div>
-}
+function Register({role,onDone,onBack}:any){
+  const[nm,setNm]=useState("");const[ph,setPh]=useState("");const[em,setEm]=useState("");const[ag,setAg]=useState("");const[ct,setCt]=useState("");
+  const[cm,setCm]=useState("");const[cmo,setCmo]=useState("");const[cp,setCp]=useState("");
+  const[ip,setIp]=useState<any>(null);const[ifl,setIfl]=useState<any>(null);
+  const[rp,setRp]=useState<any>(null);const[rfl,setRfl]=useState<any>(null);
+  const[stp,setStp]=useState(1);const[ld,setLd]=useState(false);const[er,setEr]=useState("");
+  const isD=role==="driver";const ok1=nm.trim()&&ph.length>=9&&em.includes("@")&&ag&&ct;const ok2=ok1&&cm&&cmo&&cp&&ip&&rp;
 
-/* ══════ REGISTER — saves to Supabase ══════ */
-function RegisterPage({role,onComplete,onBack}:{role:string,onComplete:(u:any)=>void,onBack:()=>void}){
-  const[name,setName]=useState("");const[phone,setPhone]=useState("");const[email,setEmail]=useState("");const[age,setAge]=useState("");const[city,setCity]=useState("");
-  const[carMake,setCarMake]=useState("");const[carModel,setCarModel]=useState("");const[carPlate,setCarPlate]=useState("");
-  const[idPhoto,setIdPhoto]=useState<string|null>(null);const[idFile,setIdFile]=useState<File|null>(null);
-  const[regPhoto,setRegPhoto]=useState<string|null>(null);const[regFile,setRegFile]=useState<File|null>(null);
-  const[step,setStep]=useState(1);const[loading,setLoading]=useState(false);const[error,setError]=useState("");
-  const isD=role==="driver";const basicOk=name.trim()&&phone.length>=9&&email.includes("@")&&age&&city;const driverOk=basicOk&&carMake&&carModel&&carPlate&&idPhoto&&regPhoto;
-  const ac=isD?C.acc:C.pri;const ag=isD?C.accW:C.priG;
-
-  const handleRegister = async () => {
-    setLoading(true); setError("");
-    try {
-      let idPhotoUrl = null, regPhotoUrl = null;
-      if (idFile) idPhotoUrl = await uploadImage(idFile, "id-photos");
-      if (regFile) regPhotoUrl = await uploadImage(regFile, "car-docs");
-
-      const { data, error: dbError } = await supabase.from("profiles").insert({
-        name, phone, email, age, city, role,
-        car_make: carMake || null, car_model: carModel || null, car_plate: carPlate || null,
-        id_photo: idPhotoUrl, reg_photo: regPhotoUrl,
-      }).select().single();
-
-      if (dbError) {
-        if (dbError.message.includes("duplicate")) setError("رقم الجوال مسجّل مسبقاً!");
-        else setError("فشل التسجيل: " + dbError.message);
-      } else {
-        onComplete(data);
-      }
-    } catch (e: any) { setError("خطأ: " + e.message); }
-    setLoading(false);
+  const go=async()=>{
+    setLd(true);setEr("");
+    let iu=null,ru=null;
+    if(ifl)iu=await uploadImg(ifl,"id-photos");
+    if(rfl)ru=await uploadImg(rfl,"car-docs");
+    const{data,error}=await supabase.from("profiles").insert({name:nm,phone:ph,email:em,age:ag,city:ct,role,car_make:cm||null,car_model:cmo||null,car_plate:cp||null,id_photo:iu,reg_photo:ru}).select().single();
+    if(error){console.error("REG ERR:",error);setEr(error.message.includes("duplicate")?"رقم الجوال مسجّل!":"خطأ: "+error.message)}
+    else{console.log("OK:",data);onDone(data)}
+    setLd(false);
   };
 
-  if(step===1) return <div style={{minHeight:"100vh",background:C.bg,fontFamily:FONT,direction:"rtl"}}><style>{GCSS}</style>
-    <div style={{padding:"20px 16px 30px",background:`linear-gradient(135deg,${ac},${ag})`,color:"#fff"}}>
-      <button onClick={onBack} style={{background:"none",border:"none",color:"rgba(255,255,255,0.7)",fontSize:14,fontFamily:FONT,cursor:"pointer",marginBottom:12}}>← رجوع</button>
-      <div style={{fontSize:36,marginBottom:8}}>{isD?"🚗":"📦"}</div><h1 style={{fontSize:24,fontWeight:900,margin:0}}>تسجيل {isD?"كدّاد":"مرسل"}</h1>
-      <p style={{fontSize:14,opacity:0.8,margin:"6px 0 0"}}>{isD?"الخطوة ١ من ٢":"أدخل معلوماتك"}</p>
-      {isD&&<div style={{display:"flex",gap:8,marginTop:14}}><div style={{flex:1,height:4,borderRadius:2,background:"#fff"}}/><div style={{flex:1,height:4,borderRadius:2,background:"rgba(255,255,255,0.3)"}}/></div>}
-    </div>
+  if(stp===1)return<div style={{minHeight:"100vh",background:C.bg,fontFamily:FN,direction:"rtl" as any}}><style>{CSS}</style>
+    <div style={{padding:"20px 16px 30px",background:`linear-gradient(135deg,${isD?C.acc:C.pri},${isD?C.accW:C.priG})`,color:"#fff"}}><button onClick={onBack} style={{background:"none",border:"none",color:"rgba(255,255,255,0.7)",fontSize:14,fontFamily:FN,cursor:"pointer",marginBottom:12}}>← رجوع</button><div style={{fontSize:36,marginBottom:8}}>{isD?"🚗":"📦"}</div><h1 style={{fontSize:24,fontWeight:900,margin:0}}>تسجيل {isD?"كدّاد":"مرسل"}</h1></div>
     <div style={{padding:"0 20px 40px",marginTop:-10,background:C.bg,borderRadius:"20px 20px 0 0"}}>
-      {error&&<div style={{background:"#FEF2F2",color:C.err,padding:12,borderRadius:12,marginTop:16,fontSize:13,fontWeight:600}}>{error}</div>}
-      <FieldLabel required>الاسم الكامل</FieldLabel><TextInput placeholder="مثال: محمد أحمد" value={name} onChange={(e:any)=>setName(e.target.value)}/>
-      <FieldLabel required>رقم الجوال</FieldLabel><TextInput placeholder="05XXXXXXXX" value={phone} onChange={(e:any)=>setPhone(e.target.value.replace(/\D/g,"").slice(0,10))} type="tel" dir="ltr"/>
-      <FieldLabel required>البريد الإلكتروني</FieldLabel><TextInput placeholder="example@email.com" value={email} onChange={(e:any)=>setEmail(e.target.value)} type="email" dir="ltr"/>
-      <FieldLabel required>العمر</FieldLabel><Picker value={age} onChange={setAge} options={AGES} placeholder="اختر عمرك"/>
-      <FieldLabel required>المدينة</FieldLabel><Picker value={city} onChange={setCity} options={SA_CITIES} placeholder="اختر مدينتك"/>
-      <button onClick={()=>isD?setStep(2):handleRegister()} disabled={!basicOk||loading} style={{width:"100%",padding:18,background:basicOk&&!loading?`linear-gradient(135deg,${ac},${ag})`:C.brd,color:"#fff",border:"none",borderRadius:18,fontSize:17,fontWeight:700,fontFamily:FONT,cursor:basicOk?"pointer":"default",marginTop:28}}>{loading?"جاري التسجيل...":(isD?"التالي — بيانات السيارة →":"إنشاء حساب ✨")}</button>
+    {er&&<div style={{background:"#FEF2F2",color:C.err,padding:12,borderRadius:12,marginTop:16,fontSize:13,fontWeight:600}}>{er}</div>}
+    <Lbl req>الاسم</Lbl><Inp placeholder="محمد أحمد" value={nm} onChange={(e:any)=>setNm(e.target.value)}/>
+    <Lbl req>الجوال</Lbl><Inp placeholder="05XXXXXXXX" value={ph} onChange={(e:any)=>setPh(e.target.value.replace(/\D/g,"").slice(0,10))} type="tel" dir="ltr"/>
+    <Lbl req>الإيميل</Lbl><Inp placeholder="example@email.com" value={em} onChange={(e:any)=>setEm(e.target.value)} type="email" dir="ltr"/>
+    <Lbl req>العمر</Lbl><Picker value={ag} onChange={setAg} options={AGES} placeholder="اختر"/>
+    <Lbl req>المدينة</Lbl><Picker value={ct} onChange={setCt} options={CITIES} placeholder="اختر"/>
+    <button onClick={()=>isD?setStp(2):go()} disabled={!ok1||ld} style={{width:"100%",padding:18,background:ok1&&!ld?`linear-gradient(135deg,${isD?C.acc:C.pri},${isD?C.accW:C.priG})`:C.brd,color:"#fff",border:"none",borderRadius:18,fontSize:17,fontWeight:700,fontFamily:FN,cursor:ok1?"pointer":"default",marginTop:28}}>{ld?"جاري التسجيل...":(isD?"التالي →":"إنشاء حساب ✨")}</button>
     </div></div>;
 
-  return <div style={{minHeight:"100vh",background:C.bg,fontFamily:FONT,direction:"rtl"}}><style>{GCSS}</style>
-    <div style={{padding:"20px 16px 30px",background:`linear-gradient(135deg,${C.acc},${C.accW})`,color:"#fff"}}>
-      <button onClick={()=>setStep(1)} style={{background:"none",border:"none",color:"rgba(255,255,255,0.7)",fontSize:14,fontFamily:FONT,cursor:"pointer",marginBottom:12}}>← رجوع</button>
-      <div style={{fontSize:36,marginBottom:8}}>🚗</div><h1 style={{fontSize:24,fontWeight:900,margin:0}}>بيانات السيارة والتوثيق</h1>
-      <div style={{display:"flex",gap:8,marginTop:14}}><div style={{flex:1,height:4,borderRadius:2,background:"#fff"}}/><div style={{flex:1,height:4,borderRadius:2,background:"#fff"}}/></div>
-    </div>
+  return<div style={{minHeight:"100vh",background:C.bg,fontFamily:FN,direction:"rtl" as any}}><style>{CSS}</style>
+    <div style={{padding:"20px 16px 30px",background:`linear-gradient(135deg,${C.acc},${C.accW})`,color:"#fff"}}><button onClick={()=>setStp(1)} style={{background:"none",border:"none",color:"rgba(255,255,255,0.7)",fontSize:14,fontFamily:FN,cursor:"pointer",marginBottom:12}}>← رجوع</button><div style={{fontSize:36,marginBottom:8}}>🚗</div><h1 style={{fontSize:24,fontWeight:900,margin:0}}>بيانات السيارة</h1></div>
     <div style={{padding:"0 20px 40px",marginTop:-10,background:C.bg,borderRadius:"20px 20px 0 0"}}>
-      {error&&<div style={{background:"#FEF2F2",color:C.err,padding:12,borderRadius:12,marginTop:16,fontSize:13,fontWeight:600}}>{error}</div>}
-      <FieldLabel required>شركة السيارة</FieldLabel><Picker value={carMake} onChange={setCarMake} options={CAR_MAKES} placeholder="اختر شركة السيارة"/>
-      <FieldLabel required>موديل السيارة</FieldLabel><TextInput placeholder="مثال: كامري، هايلكس..." value={carModel} onChange={(e:any)=>setCarModel(e.target.value)}/>
-      <FieldLabel required>رقم اللوحة</FieldLabel><TextInput placeholder="مثال: أ ب ج ١٢٣٤" value={carPlate} onChange={(e:any)=>setCarPlate(e.target.value)}/>
-      <FieldLabel required>صورة الهوية</FieldLabel><FileUpload label="اضغط لرفع صورة الهوية" preview={idPhoto} onFile={(prev,file)=>{setIdPhoto(prev);setIdFile(file)}} icon="🪪"/>
-      <FieldLabel required>صورة الاستمارة</FieldLabel><FileUpload label="اضغط لرفع الاستمارة" preview={regPhoto} onFile={(prev,file)=>{setRegPhoto(prev);setRegFile(file)}} icon="📄"/>
-      <div style={{background:C.accL,borderRadius:16,padding:14,marginTop:20,fontSize:12,color:"#92400E",lineHeight:1.7}}>⚠️ سيتم مراجعة بياناتك خلال ٢٤ ساعة</div>
-      <button onClick={handleRegister} disabled={!driverOk||loading} style={{width:"100%",padding:18,background:driverOk&&!loading?`linear-gradient(135deg,${C.acc},${C.accW})`:C.brd,color:"#fff",border:"none",borderRadius:18,fontSize:17,fontWeight:700,fontFamily:FONT,cursor:driverOk?"pointer":"default",marginTop:24}}>{loading?"جاري التسجيل...":"إنشاء حساب كدّاد 🚀"}</button>
+    {er&&<div style={{background:"#FEF2F2",color:C.err,padding:12,borderRadius:12,marginTop:16,fontSize:13,fontWeight:600}}>{er}</div>}
+    <Lbl req>الشركة</Lbl><Picker value={cm} onChange={setCm} options={CARS} placeholder="اختر"/>
+    <Lbl req>الموديل</Lbl><Inp placeholder="كامري، هايلكس..." value={cmo} onChange={(e:any)=>setCmo(e.target.value)}/>
+    <Lbl req>اللوحة</Lbl><Inp placeholder="أ ب ج ١٢٣٤" value={cp} onChange={(e:any)=>setCp(e.target.value)}/>
+    <Lbl req>صورة الهوية</Lbl><FUp label="ارفع الهوية" preview={ip} onFile={(p:any,f:any)=>{setIp(p);setIfl(f)}} icon="🪪"/>
+    <Lbl req>صورة الاستمارة</Lbl><FUp label="ارفع الاستمارة" preview={rp} onFile={(p:any,f:any)=>{setRp(p);setRfl(f)}} icon="📄"/>
+    <button onClick={go} disabled={!ok2||ld} style={{width:"100%",padding:18,background:ok2&&!ld?`linear-gradient(135deg,${C.acc},${C.accW})`:C.brd,color:"#fff",border:"none",borderRadius:18,fontSize:17,fontWeight:700,fontFamily:FN,cursor:ok2?"pointer":"default",marginTop:24}}>{ld?"جاري التسجيل...":"إنشاء حساب 🚀"}</button>
     </div></div>;
 }
 
-/* ══════ LOGIN ══════ */
-function LoginPage({onLogin,onBack}:{onLogin:(u:any)=>void,onBack:()=>void}){
-  const[phone,setPhone]=useState("");const[loading,setLoading]=useState(false);const[error,setError]=useState("");
-  const handleLogin = async () => {
-    setLoading(true);setError("");
-    const{data,error:e}=await supabase.from("profiles").select("*").eq("phone",phone).single();
-    if(e||!data) setError("رقم الجوال غير مسجّل!");
-    else onLogin(data);
-    setLoading(false);
-  };
-  return <div style={{minHeight:"100vh",background:`linear-gradient(165deg,${C.dk},${C.priD})`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24,fontFamily:FONT,direction:"rtl"}}><style>{GCSS}</style>
-    <div style={{textAlign:"center",marginBottom:36}}><div style={{fontSize:48,marginBottom:8}}>🔑</div><h1 style={{color:"#fff",fontSize:28,fontWeight:900}}>تسجيل دخول</h1></div>
-    <div style={{background:"#fff",borderRadius:24,padding:"32px 28px",width:"100%",maxWidth:400}}>
-      {error&&<div style={{background:"#FEF2F2",color:C.err,padding:12,borderRadius:12,marginBottom:16,fontSize:13,fontWeight:600}}>{error}</div>}
-      <FieldLabel required>رقم الجوال</FieldLabel><TextInput placeholder="05XXXXXXXX" value={phone} onChange={(e:any)=>setPhone(e.target.value.replace(/\D/g,"").slice(0,10))} type="tel" dir="ltr"/>
-      <button onClick={handleLogin} disabled={phone.length<9||loading} style={{width:"100%",padding:16,background:phone.length>=9&&!loading?C.pri:C.brd,color:"#fff",border:"none",borderRadius:16,fontSize:17,fontWeight:700,fontFamily:FONT,cursor:phone.length>=9?"pointer":"default",marginTop:20}}>{loading?"جاري الدخول...":"دخول"}</button>
-      <button onClick={onBack} style={{width:"100%",marginTop:12,padding:12,background:"none",border:"none",color:C.mut,fontSize:14,fontFamily:FONT,cursor:"pointer"}}>← رجوع</button>
-    </div>
-  </div>
+function Login({onDone,onBack}:any){
+  const[ph,setPh]=useState("");const[ld,setLd]=useState(false);const[er,setEr]=useState("");
+  const go=async()=>{setLd(true);setEr("");const{data,error}=await supabase.from("profiles").select("*").eq("phone",ph).single();if(error||!data)setEr("رقم غير مسجّل!");else onDone(data);setLd(false)};
+  return<div style={{minHeight:"100vh",background:`linear-gradient(165deg,${C.dk},${C.priD})`,display:"flex",flexDirection:"column" as any,alignItems:"center",justifyContent:"center",padding:24,fontFamily:FN,direction:"rtl" as any}}><style>{CSS}</style>
+  <div style={{textAlign:"center" as any,marginBottom:36}}><div style={{fontSize:48,marginBottom:8}}>🔑</div><h1 style={{color:"#fff",fontSize:28,fontWeight:900}}>تسجيل دخول</h1></div>
+  <div style={{background:"#fff",borderRadius:24,padding:"32px 28px",width:"100%",maxWidth:400}}>
+  {er&&<div style={{background:"#FEF2F2",color:C.err,padding:12,borderRadius:12,marginBottom:16,fontSize:13,fontWeight:600}}>{er}</div>}
+  <Lbl req>رقم الجوال</Lbl><Inp placeholder="05XXXXXXXX" value={ph} onChange={(e:any)=>setPh(e.target.value.replace(/\D/g,"").slice(0,10))} type="tel" dir="ltr"/>
+  <button onClick={go} disabled={ph.length<9||ld} style={{width:"100%",padding:16,background:ph.length>=9&&!ld?C.pri:C.brd,color:"#fff",border:"none",borderRadius:16,fontSize:17,fontWeight:700,fontFamily:FN,cursor:"pointer",marginTop:20}}>{ld?"جاري الدخول...":"دخول"}</button>
+  <button onClick={onBack} style={{width:"100%",marginTop:12,padding:12,background:"none",border:"none",color:C.mut,fontSize:14,fontFamily:FN,cursor:"pointer"}}>← رجوع</button>
+  </div></div>
 }
 
-/* ══════ HOME ══════ */
-function HomeScreen({navigate,role,user}:{navigate:(s:string,d?:any)=>void,role:string,user:any}){
+function Home({nav,user}:any){
   const[orders,setOrders]=useState<any[]>([]);
-  const[trips,setTrips]=useState<any[]>([]);
-  useEffect(()=>{
-    supabase.from("orders").select("*").or(`sender_id.eq.${user.id},driver_id.eq.${user.id}`).order("created_at",{ascending:false}).limit(3).then(({data})=>{if(data)setOrders(data)});
-    supabase.from("trips").select("*").eq("status","active").order("created_at",{ascending:false}).limit(3).then(({data})=>{if(data)setTrips(data)});
-  },[user.id]);
-
-  return <div style={{padding:"20px 16px 100px",fontFamily:FONT,direction:"rtl"}}>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
-      <div><h2 style={{margin:0,fontSize:24,fontWeight:800,color:C.txt}}>أهلاً {user.name?.split(" ")[0]} 👋</h2><p style={{margin:"4px 0 0",fontSize:14,color:C.mut}}>{role==="sender"?"وش تبغى توصّل؟":"جاهز تكسب؟"}</p></div>
-      <Avatar letter={user.name?.[0]||"؟"} size={46}/>
-    </div>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:28}}>
-      <button onClick={()=>navigate("createOrder")} style={{background:`linear-gradient(135deg,${C.pri},${C.priD})`,border:"none",borderRadius:20,padding:"28px 18px",cursor:"pointer",textAlign:"right"}}><div style={{fontSize:34,marginBottom:10}}>📦</div><div style={{color:"#fff",fontSize:16,fontWeight:700,fontFamily:FONT}}>أرسل غرض</div></button>
-      <button onClick={()=>navigate("addTrip")} style={{background:`linear-gradient(135deg,${C.acc},${C.accW})`,border:"none",borderRadius:20,padding:"28px 18px",cursor:"pointer",textAlign:"right"}}><div style={{fontSize:34,marginBottom:10}}>🚗</div><div style={{color:"#fff",fontSize:16,fontWeight:700,fontFamily:FONT}}>أضف رحلة</div></button>
-    </div>
-    <h3 style={{margin:"0 0 14px",fontSize:17,fontWeight:700}}>آخر الطلبات</h3>
-    {orders.length===0&&<div style={{background:C.card,borderRadius:18,padding:24,textAlign:"center",border:`1px solid ${C.brd}`,color:C.mut}}>لا توجد طلبات بعد</div>}
-    {orders.map((o:any)=><div key={o.id} onClick={()=>navigate("orderDetail",o)} style={{background:C.card,borderRadius:18,padding:16,marginBottom:12,cursor:"pointer",border:`1px solid ${C.brd}`}}>
-      <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div><div style={{fontSize:15,fontWeight:700}}>{o.item_name}</div><div style={{fontSize:12,color:C.mut,marginTop:3}}>{o.city_from} → {o.city_to}</div></div><StatusBadge status={o.status}/></div>
-      <div style={{display:"flex",justifyContent:"space-between",paddingTop:10,borderTop:`1px solid ${C.brd}`}}><span style={{fontSize:13,color:C.mut}}>#{o.id?.slice(0,8)}</span><span style={{fontSize:15,fontWeight:700,color:C.pri}}>{o.price||"عروض"} ر.س</span></div>
-    </div>)}
-  </div>
+  useEffect(()=>{supabase.from("orders").select("*").or(`sender_id.eq.${user.id},driver_id.eq.${user.id}`).order("created_at",{ascending:false}).limit(5).then(({data}:any)=>{if(data)setOrders(data)})},[user.id]);
+  return<div style={{padding:"20px 16px 100px",fontFamily:FN,direction:"rtl" as any}}>
+  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}><div><h2 style={{margin:0,fontSize:24,fontWeight:800,color:C.txt}}>أهلاً {user.name?.split(" ")[0]} 👋</h2><p style={{margin:"4px 0 0",fontSize:14,color:C.mut}}>{user.role==="sender"?"وش تبغى توصّل؟":"جاهز تكسب؟"}</p></div><Av l={user.name?.[0]||"?"} s={46}/></div>
+  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:28}}>
+  <button onClick={()=>nav("newOrder")} style={{background:`linear-gradient(135deg,${C.pri},${C.priD})`,border:"none",borderRadius:20,padding:"28px 18px",cursor:"pointer",textAlign:"right" as any}}><div style={{fontSize:34,marginBottom:10}}>📦</div><div style={{color:"#fff",fontSize:16,fontWeight:700,fontFamily:FN}}>أرسل غرض</div></button>
+  <button onClick={()=>nav("newTrip")} style={{background:`linear-gradient(135deg,${C.acc},${C.accW})`,border:"none",borderRadius:20,padding:"28px 18px",cursor:"pointer",textAlign:"right" as any}}><div style={{fontSize:34,marginBottom:10}}>🚗</div><div style={{color:"#fff",fontSize:16,fontWeight:700,fontFamily:FN}}>أضف رحلة</div></button></div>
+  <h3 style={{margin:"0 0 14px",fontSize:17,fontWeight:700}}>طلباتك</h3>
+  {orders.length===0&&<div style={{background:C.card,borderRadius:18,padding:24,textAlign:"center" as any,border:`1px solid ${C.brd}`,color:C.mut}}>لا توجد طلبات بعد</div>}
+  {orders.map((o:any)=><div key={o.id} onClick={()=>nav("detail",o)} style={{background:C.card,borderRadius:18,padding:16,marginBottom:12,cursor:"pointer",border:`1px solid ${C.brd}`}}>
+    <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div><div style={{fontSize:15,fontWeight:700}}>{o.item_name}</div><div style={{fontSize:12,color:C.mut,marginTop:3}}>{o.city_from} → {o.city_to}</div></div><Badge st={o.status}/></div>
+    <div style={{display:"flex",justifyContent:"space-between",paddingTop:10,borderTop:`1px solid ${C.brd}`}}><span style={{fontSize:13,color:C.mut}}>#{String(o.id).slice(0,8)}</span><span style={{fontSize:15,fontWeight:700,color:C.pri}}>{o.price||"—"} ر.س</span></div>
+  </div>)}</div>
 }
 
-/* ══════ CREATE ORDER — saves to Supabase ══════ */
-function CreateOrderScreen({onBack,user,onDone}:{onBack:()=>void,user:any,onDone:()=>void}){
-  const[item,setItem]=useState("");const[size,setSize]=useState("");const[from,setFrom]=useState("");const[to,setTo]=useState("");const[delivery,setDelivery]=useState("");const[price,setPrice]=useState("");
-  const[fragile,setFragile]=useState(false);const[agree,setAgree]=useState(false);const[image,setImage]=useState<string|null>(null);const[imageFile,setImageFile]=useState<File|null>(null);
-  const[showWarn,setShowWarn]=useState(false);const[loading,setLoading]=useState(false);
-  const ok=item&&size&&from&&to&&delivery&&image&&agree;
+function NewOrder({onBack,user,onDone}:any){
+  const[item,setItem]=useState("");const[size,setSize]=useState("");const[from,setFrom]=useState("");const[to,setTo]=useState("");const[del,setDel]=useState("");const[price,setPrice]=useState("");
+  const[frag,setFrag]=useState(false);const[agree,setAgree]=useState(false);const[img,setImg]=useState<any>(null);const[imgF,setImgF]=useState<any>(null);const[warn,setWarn]=useState(false);const[ld,setLd]=useState(false);
+  const ok=item&&size&&from&&to&&del&&img&&agree;
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    let imageUrl = null;
-    if(imageFile) imageUrl = await uploadImage(imageFile, "items");
-    const{error}=await supabase.from("orders").insert({
-      sender_id:user.id, item_name:item, item_size:size, item_image:imageUrl,
-      is_fragile:fragile, city_from:from, city_to:to, delivery_type:delivery,
-      price:price?Number(price):null, status:"pending",
-    });
-    setLoading(false);
-    if(!error) onDone(); else alert("خطأ: "+error.message);
-  };
+  const go=async()=>{setLd(true);let url=null;if(imgF)url=await uploadImg(imgF,"items");
+    const{error}=await supabase.from("orders").insert({sender_id:user.id,item_name:item,item_size:size,item_image:url,is_fragile:frag,city_from:from,city_to:to,delivery_type:del,price:price?Number(price):null,status:"pending"});
+    setLd(false);if(!error)onDone();else alert("خطأ: "+error.message)};
 
-  if(showWarn) return <div style={{fontFamily:FONT,direction:"rtl",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:32,background:C.bg}}>
-    <div style={{background:"#fff",borderRadius:24,padding:32,maxWidth:400,width:"100%",textAlign:"center"}}>
-      <div style={{fontSize:56,marginBottom:16}}>⚠️</div><h2 style={{fontSize:22,fontWeight:800,margin:"0 0 12px"}}>تأكيد قبل النشر</h2>
-      <div style={{background:C.accL,borderRadius:16,padding:16,marginBottom:16,textAlign:"right"}}><ul style={{margin:0,paddingRight:20,fontSize:13,color:"#92400E",lineHeight:2}}><li>التغليف مسؤولية المرسل</li><li>كدّاد غير مسؤول عن الأغراض الغير مغلفة</li>{fragile&&<li style={{fontWeight:700}}>⚠️ قابل للكسر</li>}</ul></div>
-      <div style={{display:"flex",gap:12}}><button onClick={()=>setShowWarn(false)} style={{flex:1,padding:14,background:"none",border:`2px solid ${C.brd}`,borderRadius:14,fontSize:15,fontWeight:700,fontFamily:FONT,cursor:"pointer",color:C.mut}}>رجوع</button><button onClick={handleSubmit} disabled={loading} style={{flex:1,padding:14,background:C.pri,color:"#fff",border:"none",borderRadius:14,fontSize:15,fontWeight:700,fontFamily:FONT,cursor:"pointer"}}>{loading?"جاري النشر...":"تأكيد ✅"}</button></div>
-    </div></div>;
+  if(warn)return<div style={{fontFamily:FN,direction:"rtl" as any,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:32,background:C.bg}}><div style={{background:"#fff",borderRadius:24,padding:32,maxWidth:400,width:"100%",textAlign:"center" as any}}><div style={{fontSize:56,marginBottom:16}}>⚠️</div><h2 style={{fontSize:22,fontWeight:800,margin:"0 0 12px"}}>تأكيد</h2><div style={{background:C.accL,borderRadius:16,padding:16,marginBottom:16,textAlign:"right" as any}}><ul style={{margin:0,paddingRight:20,fontSize:13,color:"#92400E",lineHeight:2}}><li>التغليف مسؤولية المرسل</li>{frag&&<li>⚠️ قابل للكسر</li>}</ul></div><div style={{display:"flex",gap:12}}><button onClick={()=>setWarn(false)} style={{flex:1,padding:14,background:"none",border:`2px solid ${C.brd}`,borderRadius:14,fontSize:15,fontWeight:700,fontFamily:FN,cursor:"pointer",color:C.mut}}>رجوع</button><button onClick={go} disabled={ld} style={{flex:1,padding:14,background:C.pri,color:"#fff",border:"none",borderRadius:14,fontSize:15,fontWeight:700,fontFamily:FN,cursor:"pointer"}}>{ld?"جاري...":"تأكيد ✅"}</button></div></div></div>;
 
-  return <div style={{fontFamily:FONT,direction:"rtl"}}><PageHeader title="إنشاء طلب جديد" onBack={onBack}/><div style={{padding:"4px 20px 120px"}}>
-    <FieldLabel required>وصف الغرض</FieldLabel><TextInput placeholder="مثال: جوال، شنطة..." value={item} onChange={(e:any)=>setItem(e.target.value)}/>
-    <FieldLabel required>صورة الغرض</FieldLabel><FileUpload label="اضغط لرفع صورة" preview={image} onFile={(prev,file)=>{setImage(prev);setImageFile(file)}}/>
-    <FieldLabel required>الحجم</FieldLabel><GridSelect options={SIZES} value={size} onChange={setSize}/>
-    <FieldLabel required>من مدينة</FieldLabel><Picker value={from} onChange={setFrom} options={SA_CITIES} placeholder="اختر مدينة الإرسال"/>
-    <FieldLabel required>إلى مدينة</FieldLabel><Picker value={to} onChange={setTo} options={SA_CITIES} placeholder="اختر مدينة الاستلام"/>
-    <FieldLabel required>نوع التسليم</FieldLabel><GridSelect options={DEL_TYPES} value={delivery} onChange={setDelivery}/>
-    <FieldLabel>السعر (اختياري)</FieldLabel><TextInput placeholder="اتركه فاضي للعروض" value={price} onChange={(e:any)=>setPrice(e.target.value.replace(/\D/g,""))} type="tel" dir="ltr"/>
-    <div onClick={()=>setFragile(!fragile)} style={{marginTop:20,display:"flex",alignItems:"center",gap:12,background:fragile?C.accL:"#fff",border:`2px solid ${fragile?C.acc:C.brd}`,borderRadius:16,padding:"14px 16px",cursor:"pointer"}}><span style={{fontSize:24}}>⚠️</span><div style={{flex:1}}><div style={{fontSize:14,fontWeight:700}}>قابل للكسر</div></div><div style={{width:44,height:24,borderRadius:12,background:fragile?C.acc:C.brd,padding:2,display:"flex",justifyContent:fragile?"flex-start":"flex-end"}}><div style={{width:20,height:20,borderRadius:10,background:"#fff"}}/></div></div>
-    <div onClick={()=>setAgree(!agree)} style={{marginTop:14,display:"flex",alignItems:"flex-start",gap:12,cursor:"pointer"}}><div style={{width:24,height:24,borderRadius:8,border:`2px solid ${agree?C.pri:C.brd}`,background:agree?C.pri:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}>{agree&&<svg width="14" height="14" fill="none" stroke="#fff" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}</div><div style={{fontSize:13,color:C.mut,lineHeight:1.7}}>أوافق على أن <strong style={{color:C.txt}}>التغليف مسؤوليتي</strong></div></div>
-    <button onClick={()=>ok&&setShowWarn(true)} disabled={!ok} style={{width:"100%",padding:18,background:ok?C.pri:C.brd,color:"#fff",border:"none",borderRadius:18,fontSize:17,fontWeight:700,fontFamily:FONT,cursor:ok?"pointer":"default",marginTop:28}}>نشر الطلب 🚀</button>
+  return<div style={{fontFamily:FN,direction:"rtl" as any}}><Hdr t="إنشاء طلب" onBack={onBack}/><div style={{padding:"4px 20px 120px"}}>
+  <Lbl req>الغرض</Lbl><Inp placeholder="جوال، شنطة..." value={item} onChange={(e:any)=>setItem(e.target.value)}/>
+  <Lbl req>صورة</Lbl><FUp label="ارفع صورة" preview={img} onFile={(p:any,f:any)=>{setImg(p);setImgF(f)}}/>
+  <Lbl req>الحجم</Lbl><GS opts={SIZES} val={size} onChange={setSize}/>
+  <Lbl req>من</Lbl><Picker value={from} onChange={setFrom} options={CITIES} placeholder="مدينة الإرسال"/>
+  <Lbl req>إلى</Lbl><Picker value={to} onChange={setTo} options={CITIES} placeholder="مدينة الاستلام"/>
+  <Lbl req>التسليم</Lbl><GS opts={DTYPES} val={del} onChange={setDel}/>
+  <Lbl>السعر</Lbl><Inp placeholder="اختياري" value={price} onChange={(e:any)=>setPrice(e.target.value.replace(/\D/g,""))} type="tel" dir="ltr"/>
+  <div onClick={()=>setFrag(!frag)} style={{marginTop:20,display:"flex",alignItems:"center",gap:12,background:frag?C.accL:"#fff",border:`2px solid ${frag?C.acc:C.brd}`,borderRadius:16,padding:"14px 16px",cursor:"pointer"}}><span style={{fontSize:24}}>⚠️</span><div style={{flex:1,fontSize:14,fontWeight:700}}>قابل للكسر</div><div style={{width:44,height:24,borderRadius:12,background:frag?C.acc:C.brd,padding:2,display:"flex",justifyContent:frag?"flex-start":"flex-end"}}><div style={{width:20,height:20,borderRadius:10,background:"#fff"}}/></div></div>
+  <div onClick={()=>setAgree(!agree)} style={{marginTop:14,display:"flex",alignItems:"flex-start",gap:12,cursor:"pointer"}}><div style={{width:24,height:24,borderRadius:8,border:`2px solid ${agree?C.pri:C.brd}`,background:agree?C.pri:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}>{agree&&<svg width="14" height="14" fill="none" stroke="#fff" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}</div><div style={{fontSize:13,color:C.mut,lineHeight:1.7}}>التغليف مسؤوليتي</div></div>
+  <button onClick={()=>ok&&setWarn(true)} disabled={!ok} style={{width:"100%",padding:18,background:ok?C.pri:C.brd,color:"#fff",border:"none",borderRadius:18,fontSize:17,fontWeight:700,fontFamily:FN,cursor:ok?"pointer":"default",marginTop:28}}>نشر 🚀</button>
   </div></div>
 }
 
-/* ══════ ADD TRIP — saves to Supabase ══════ */
-function AddTripScreen({onBack,user}:{onBack:()=>void,user:any}){
-  const[from,setFrom]=useState("");const[to,setTo]=useState("");const[time,setTime]=useState("");const[space,setSpace]=useState("");const[done,setDone]=useState(false);const[loading,setLoading]=useState(false);
-  const handleSubmit = async () => {
-    setLoading(true);
-    const{error}=await supabase.from("trips").insert({driver_id:user.id,city_from:from,city_to:to,departure_time:time?new Date().toISOString():null,available_space:space});
-    setLoading(false);
-    if(!error) setDone(true); else alert("خطأ: "+error.message);
-  };
-  if(done) return <div style={{fontFamily:FONT,direction:"rtl",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"100vh",padding:32,textAlign:"center"}}><div style={{fontSize:60,marginBottom:16}}>🎉</div><h2 style={{fontSize:22,fontWeight:800,margin:"0 0 8px"}}>تمت إضافة رحلتك!</h2><p style={{fontSize:14,color:C.mut,marginBottom:24}}>بنرسل لك إشعار لما يجيك طلب</p><button onClick={onBack} style={{padding:"14px 36px",background:C.pri,color:"#fff",border:"none",borderRadius:16,fontSize:15,fontWeight:700,fontFamily:FONT,cursor:"pointer"}}>الرئيسية</button></div>;
-  const ok=from&&to&&space;
-  return <div style={{fontFamily:FONT,direction:"rtl"}}><PageHeader title="أضف رحلة" onBack={onBack}/><div style={{padding:"4px 20px 120px"}}>
-    <FieldLabel required>من مدينة</FieldLabel><Picker value={from} onChange={setFrom} options={SA_CITIES} placeholder="اختر مدينة الانطلاق"/>
-    <FieldLabel required>إلى مدينة</FieldLabel><Picker value={to} onChange={setTo} options={SA_CITIES} placeholder="اختر مدينة الوصول"/>
-    <FieldLabel>وقت الانطلاق</FieldLabel><input type="time" value={time} onChange={(e)=>setTime(e.target.value)} style={{width:"100%",padding:"13px 16px",border:`2px solid ${C.brd}`,borderRadius:14,fontSize:16,fontFamily:FONT,outline:"none",boxSizing:"border-box"}}/>
-    <FieldLabel required>المساحة</FieldLabel><GridSelect options={["شنطة صغيرة","شنطة كبيرة","حوض","سطحة"]} value={space} onChange={setSpace} ac={C.acc} acBg={C.accL}/>
-    <button onClick={()=>ok&&handleSubmit()} disabled={!ok||loading} style={{width:"100%",padding:18,background:ok&&!loading?`linear-gradient(135deg,${C.acc},${C.accW})`:C.brd,color:"#fff",border:"none",borderRadius:18,fontSize:17,fontWeight:700,fontFamily:FONT,cursor:ok?"pointer":"default",marginTop:28}}>{loading?"جاري النشر...":"نشر الرحلة 🚀"}</button>
+function NewTrip({onBack,user}:any){
+  const[from,setFrom]=useState("");const[to,setTo]=useState("");const[sp,setSp]=useState("");const[ld,setLd]=useState(false);const[done,setDone]=useState(false);
+  const go=async()=>{setLd(true);await supabase.from("trips").insert({driver_id:user.id,city_from:from,city_to:to,available_space:sp});setLd(false);setDone(true)};
+  if(done)return<div style={{fontFamily:FN,direction:"rtl" as any,display:"flex",flexDirection:"column" as any,alignItems:"center",justifyContent:"center",minHeight:"100vh",padding:32,textAlign:"center" as any}}><div style={{fontSize:60,marginBottom:16}}>🎉</div><h2 style={{fontSize:22,fontWeight:800}}>تمت الإضافة!</h2><button onClick={onBack} style={{padding:"14px 36px",background:C.pri,color:"#fff",border:"none",borderRadius:16,fontSize:15,fontWeight:700,fontFamily:FN,cursor:"pointer",marginTop:24}}>الرئيسية</button></div>;
+  const ok=from&&to&&sp;
+  return<div style={{fontFamily:FN,direction:"rtl" as any}}><Hdr t="أضف رحلة" onBack={onBack}/><div style={{padding:"4px 20px 120px"}}>
+  <Lbl req>من</Lbl><Picker value={from} onChange={setFrom} options={CITIES} placeholder="مدينة الانطلاق"/>
+  <Lbl req>إلى</Lbl><Picker value={to} onChange={setTo} options={CITIES} placeholder="مدينة الوصول"/>
+  <Lbl req>المساحة</Lbl><GS opts={["شنطة صغيرة","شنطة كبيرة","حوض","سطحة"]} val={sp} onChange={setSp} ac={C.acc} acBg={C.accL}/>
+  <button onClick={()=>ok&&go()} disabled={!ok||ld} style={{width:"100%",padding:18,background:ok&&!ld?`linear-gradient(135deg,${C.acc},${C.accW})`:C.brd,color:"#fff",border:"none",borderRadius:18,fontSize:17,fontWeight:700,fontFamily:FN,cursor:ok?"pointer":"default",marginTop:28}}>{ld?"جاري...":"نشر 🚀"}</button>
   </div></div>
 }
 
-/* ══════ CHAT — real-time with Supabase ══════ */
-function ChatScreen({orderId,otherUser,currentUser,onBack}:{orderId:string,otherUser:any,currentUser:any,onBack:()=>void}){
-  const[messages,setMessages]=useState<any[]>([]);const[input,setInput]=useState("");const endRef=useRef<HTMLDivElement>(null);
-  useEffect(()=>{
-    supabase.from("messages").select("*").eq("order_id",orderId).order("created_at",{ascending:true}).then(({data})=>{if(data)setMessages(data)});
-    const channel=supabase.channel("chat-"+orderId).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:`order_id=eq.${orderId}`},(payload:any)=>{setMessages(prev=>[...prev,payload.new])}).subscribe();
-    return()=>{supabase.removeChannel(channel)};
-  },[orderId]);
-  useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"})},[messages]);
-  const sendMsg = async () => {
-    if(!input.trim())return;
-    await supabase.from("messages").insert({order_id:orderId,sender_id:currentUser.id,content:input});
-    setInput("");
-  };
-  const getTime=(ts:string)=>{const d=new Date(ts);return `${d.getHours()%12||12}:${String(d.getMinutes()).padStart(2,"0")} ${d.getHours()>=12?"م":"ص"}`};
-  return <div style={{fontFamily:FONT,direction:"rtl",display:"flex",flexDirection:"column",height:"100vh"}}>
-    <div style={{padding:"12px 16px",background:"#fff",borderBottom:`1px solid ${C.brd}`,display:"flex",alignItems:"center",gap:12}}><button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",display:"flex",padding:4}}><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg></button><Avatar letter={otherUser?.name?.[0]||"؟"} size={38} bg={C.priD}/><div><div style={{fontSize:15,fontWeight:700}}>{otherUser?.name||"مستخدم"}</div><div style={{fontSize:11,color:C.ok}}>● متصل</div></div></div>
-    <div style={{background:C.accL,padding:"8px 16px",display:"flex",alignItems:"center",gap:8}}><span>⚠️</span><span style={{fontSize:11,color:"#92400E",fontWeight:600}}>كدّاد غير مسؤول عن محادثات خارج التطبيق</span></div>
-    <div style={{flex:1,overflow:"auto",padding:16,background:C.srf}}>{messages.map((m:any)=><div key={m.id} style={{display:"flex",justifyContent:m.sender_id===currentUser.id?"flex-start":"flex-end",marginBottom:10}}><div style={{maxWidth:"75%",background:m.sender_id===currentUser.id?C.pri:"#fff",color:m.sender_id===currentUser.id?"#fff":C.txt,padding:"11px 15px",borderRadius:m.sender_id===currentUser.id?"16px 16px 4px 16px":"16px 16px 16px 4px"}}><div style={{fontSize:14,lineHeight:1.6}}>{m.content}</div><div style={{fontSize:10,opacity:0.5,marginTop:3}}>{getTime(m.created_at)}</div></div></div>)}<div ref={endRef}/></div>
-    <div style={{padding:"10px 16px",background:"#fff",borderTop:`1px solid ${C.brd}`,display:"flex",gap:10}}><input value={input} onChange={(e)=>setInput(e.target.value)} onKeyDown={(e)=>e.key==="Enter"&&sendMsg()} placeholder="اكتب رسالتك..." style={{flex:1,padding:"12px 16px",border:`2px solid ${C.brd}`,borderRadius:20,fontSize:14,fontFamily:FONT,outline:"none"}}/><button onClick={sendMsg} style={{background:C.pri,border:"none",borderRadius:"50%",width:46,height:46,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:"#fff",flexShrink:0}}><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg></button></div>
+function Detail({order,onBack}:any){
+  return<div style={{fontFamily:FN,direction:"rtl" as any}}><Hdr t="تفاصيل الطلب" onBack={onBack}/><div style={{padding:"16px 16px 100px"}}>
+  <div style={{background:C.card,borderRadius:20,padding:18,marginBottom:14,border:`1px solid ${C.brd}`}}>
+  <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><span style={{fontSize:13,color:C.mut}}>الغرض</span><span style={{fontSize:14,fontWeight:600}}>{order.item_name}</span></div>
+  <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><span style={{fontSize:13,color:C.mut}}>المسار</span><span style={{fontSize:14,fontWeight:600}}>{order.city_from} → {order.city_to}</span></div>
+  <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><span style={{fontSize:13,color:C.mut}}>الحالة</span><Badge st={order.status}/></div>
+  {order.is_fragile&&<div style={{background:C.accL,borderRadius:12,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#92400E"}}>⚠️ قابل للكسر</div>}
+  <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontSize:13,color:C.mut}}>المبلغ</span><span style={{fontSize:18,fontWeight:800,color:C.pri}}>{order.price||"—"} ر.س</span></div>
+  {order.item_image&&<img src={order.item_image} alt="" style={{width:"100%",borderRadius:16,marginTop:14,maxHeight:200,objectFit:"cover" as any}}/>}
   </div>
-}
-
-/* ══════ ORDER DETAIL ══════ */
-function OrderDetailScreen({order,onBack,onChat,user}:{order:any,onBack:()=>void,onChat:()=>void,user:any}){
-  const steps=["pending","بالطريق","وصل المدينة","تم التسليم"];const cur=steps.indexOf(order.status);
-  return <div style={{fontFamily:FONT,direction:"rtl"}}><PageHeader title="تفاصيل الطلب" onBack={onBack}/><div style={{padding:"16px 16px 100px"}}>
-    <div style={{background:C.card,borderRadius:20,padding:22,marginBottom:14,border:`1px solid ${C.brd}`}}><h3 style={{margin:"0 0 18px",fontSize:15,fontWeight:700}}>📍 تتبع</h3><div style={{paddingRight:28}}>{steps.map((s,i)=><div key={s} style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:i<3?24:0,position:"relative"}}><div style={{position:"absolute",right:-28,width:22,height:22,borderRadius:"50%",background:i<=cur?C.pri:C.brd,display:"flex",alignItems:"center",justifyContent:"center",zIndex:2}}>{i<=cur&&<div style={{width:7,height:7,borderRadius:"50%",background:"#fff"}}/>}</div>{i<3&&<div style={{position:"absolute",right:-18,top:22,width:2,height:24,background:i<cur?C.pri:C.brd}}/>}<span style={{fontSize:14,fontWeight:i<=cur?700:400,color:i<=cur?C.txt:C.mut}}>{s==="pending"?"بانتظار القبول":s}</span></div>)}</div></div>
-    <div style={{background:C.card,borderRadius:20,padding:18,marginBottom:14,border:`1px solid ${C.brd}`}}>
-      <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><span style={{fontSize:13,color:C.mut}}>الغرض</span><span style={{fontSize:14,fontWeight:600}}>{order.item_name}</span></div>
-      <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><span style={{fontSize:13,color:C.mut}}>المسار</span><span style={{fontSize:14,fontWeight:600}}>{order.city_from} → {order.city_to}</span></div>
-      {order.is_fragile&&<div style={{background:C.accL,borderRadius:12,padding:"10px 14px",marginBottom:14,fontSize:13,fontWeight:700,color:"#92400E"}}>⚠️ قابل للكسر</div>}
-      <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontSize:13,color:C.mut}}>المبلغ</span><span style={{fontSize:18,fontWeight:800,color:C.pri}}>{order.price||"عروض"} ر.س</span></div>
-    </div>
-    {order.otp_code&&order.status==="بالطريق"&&<div style={{background:C.accL,borderRadius:20,padding:20,textAlign:"center",border:`2px dashed ${C.acc}`,marginBottom:14}}><div style={{fontSize:13,fontWeight:600,marginBottom:8}}>رمز التسليم</div><div style={{fontSize:34,fontWeight:900,color:C.acc,letterSpacing:10,direction:"ltr"}}>{order.otp_code}</div></div>}
-    <button onClick={onChat} style={{width:"100%",padding:14,background:C.priL,border:"none",borderRadius:16,color:C.pri,fontWeight:700,fontFamily:FONT,fontSize:15,cursor:"pointer"}}>💬 فتح المحادثة</button>
+  {order.otp_code&&<div style={{background:C.accL,borderRadius:20,padding:20,textAlign:"center" as any,border:`2px dashed ${C.acc}`}}><div style={{fontSize:13,fontWeight:600,marginBottom:8}}>رمز التسليم</div><div style={{fontSize:34,fontWeight:900,color:C.acc,letterSpacing:10,direction:"ltr" as any}}>{order.otp_code}</div></div>}
   </div></div>
 }
 
-/* ══════ PROFILE ══════ */
-function ProfileScreen({user,role,onLogout}:{user:any,role:string,onLogout:()=>void}){
-  return <div style={{fontFamily:FONT,direction:"rtl",padding:"24px 16px 100px"}}>
-    <div style={{textAlign:"center",marginBottom:28}}>
-      <Avatar letter={user.name?.[0]||"؟"} size={72}/><h2 style={{margin:"14px 0 4px",fontSize:21,fontWeight:800}}>{user.name}</h2>
-      <p style={{margin:0,fontSize:13,color:C.mut}}>{user.phone} · {user.email}</p><p style={{margin:"4px 0 0",fontSize:12,color:C.mut}}>{user.city}</p>
-      <div style={{display:"inline-block",background:role==="sender"?C.priL:C.accL,color:role==="sender"?C.pri:"#92400E",padding:"4px 14px",borderRadius:10,fontSize:12,fontWeight:700,marginTop:8}}>{role==="sender"?"📦 مرسل":"🚗 كدّاد"}</div>
-      {user.car_make&&<p style={{margin:"8px 0 0",fontSize:13,color:C.mut}}>{user.car_make} {user.car_model} · {user.car_plate}</p>}
-    </div>
-    {[["⭐","التقييم",`${user.rating||5.0}`],["🔔","الإشعارات","مفعّلة"],["🛡️","الأمان","توثيق الهوية"],["❓","المساعدة","تواصل معنا"]].map(([ic,l,d]:any,i:number)=><div key={i} style={{background:C.card,borderRadius:16,padding:"14px 16px",marginBottom:8,border:`1px solid ${C.brd}`,display:"flex",alignItems:"center",gap:12,cursor:"pointer"}}><span style={{fontSize:22}}>{ic}</span><div style={{flex:1}}><div style={{fontSize:14,fontWeight:700}}>{l}</div><div style={{fontSize:12,color:C.mut}}>{d}</div></div></div>)}
-    <button onClick={onLogout} style={{width:"100%",marginTop:16,padding:14,background:"none",border:`2px solid ${C.err}`,borderRadius:16,color:C.err,fontSize:15,fontWeight:700,fontFamily:FONT,cursor:"pointer"}}>تسجيل خروج</button>
+function Profile({user,onLogout}:any){
+  return<div style={{fontFamily:FN,direction:"rtl" as any,padding:"24px 16px 100px"}}>
+  <div style={{textAlign:"center" as any,marginBottom:28}}><Av l={user.name?.[0]||"?"} s={72}/><h2 style={{margin:"14px 0 4px",fontSize:21,fontWeight:800}}>{user.name}</h2><p style={{margin:0,fontSize:13,color:C.mut}}>{user.phone} · {user.email}</p><p style={{margin:"4px 0 0",fontSize:12,color:C.mut}}>{user.city}</p>
+  <div style={{display:"inline-block",background:user.role==="sender"?C.priL:C.accL,color:user.role==="sender"?C.pri:"#92400E",padding:"4px 14px",borderRadius:10,fontSize:12,fontWeight:700,marginTop:8}}>{user.role==="sender"?"📦 مرسل":"🚗 كدّاد"}</div>
+  {user.car_make&&<p style={{margin:"8px 0 0",fontSize:13,color:C.mut}}>{user.car_make} {user.car_model} · {user.car_plate}</p>}</div>
+  <button onClick={onLogout} style={{width:"100%",marginTop:16,padding:14,background:"none",border:`2px solid ${C.err}`,borderRadius:16,color:C.err,fontSize:15,fontWeight:700,fontFamily:FN,cursor:"pointer"}}>تسجيل خروج</button>
   </div>
 }
 
-/* ══════ ORDERS LIST ══════ */
-function OrdersListScreen({user,onBack,onSelect}:{user:any,onBack:()=>void,onSelect:(o:any)=>void}){
+export default function App(){
+  const[phase,setPhase]=useState("landing");
+  const[role,setRole]=useState("sender");
+  const[screen,setScreen]=useState("home");
+  const[data,setData]=useState<any>(null);
+  const[user,setUser]=useState<any>(null);
+  const nav=(s:string,d:any=null)=>{setScreen(s);setData(d)};
+
+  if(phase==="landing")return<Landing onStart={()=>setPhase("role")} onLogin={()=>setPhase("login")}/>;
+  if(phase==="role")return<RoleSelect onPick={(r:string)=>{setRole(r);setPhase("reg")}} onBack={()=>setPhase("landing")}/>;
+  if(phase==="reg")return<Register role={role} onDone={(u:any)=>{setUser(u);setPhase("app");nav("home")}} onBack={()=>setPhase("role")}/>;
+  if(phase==="login")return<Login onDone={(u:any)=>{setUser(u);setPhase("app");nav("home")}} onBack={()=>setPhase("landing")}/>;
+
+  const tabs=[["home","🏠","الرئيسية"],["orders","📋","طلباتي"],["newOrder","➕","طلب جديد"],["profile","👤","حسابي"]];
+
+  const R=()=>{switch(screen){
+    case"home":return<Home nav={nav} user={user}/>;
+    case"newOrder":return<NewOrder onBack={()=>nav("home")} user={user} onDone={()=>nav("home")}/>;
+    case"newTrip":return<NewTrip onBack={()=>nav("home")} user={user}/>;
+    case"detail":return<Detail order={data} onBack={()=>nav("home")}/>;
+    case"orders":return<OrdersList user={user} onBack={()=>nav("home")} onPick={(o:any)=>nav("detail",o)}/>;
+    case"profile":return<Profile user={user} onLogout={()=>{setPhase("landing");setUser(null)}}/>;
+    default:return<Home nav={nav} user={user}/>;
+  }};
+
+  return<div style={{maxWidth:430,margin:"0 auto",background:C.bg,minHeight:"100vh",position:"relative"}}><style>{CSS}</style>{R()}
+  <div style={{position:"fixed",bottom:0,left:0,right:0,background:"#fff",borderTop:`1px solid ${C.brd}`,display:"flex",justifyContent:"space-around",padding:"8px 0 12px",zIndex:100,fontFamily:FN}}>
+  {tabs.map(([id,em,lb]:any)=><button key={id} onClick={()=>nav(id)} style={{background:"none",border:"none",cursor:"pointer",display:"flex",flexDirection:"column" as any,alignItems:"center",gap:3,color:screen===id?C.pri:C.mut,fontFamily:FN}}><span style={{fontSize:20}}>{em}</span><span style={{fontSize:10,fontWeight:screen===id?700:500}}>{lb}</span></button>)}
+  </div></div>;
+}
+
+function OrdersList({user,onBack,onPick}:any){
   const[orders,setOrders]=useState<any[]>([]);
-  useEffect(()=>{supabase.from("orders").select("*").or(`sender_id.eq.${user.id},driver_id.eq.${user.id}`).order("created_at",{ascending:false}).then(({data})=>{if(data)setOrders(data)})},[user.id]);
-  return <div style={{fontFamily:FONT,direction:"rtl"}}><PageHeader title="طلباتي" onBack={onBack}/><div style={{padding:"12px 16px 100px"}}>
-    {orders.length===0&&<div style={{padding:40,textAlign:"center",color:C.mut}}>لا توجد طلبات</div>}
-    {orders.map((o:any)=><div key={o.id} onClick={()=>onSelect(o)} style={{background:C.card,borderRadius:18,padding:16,marginBottom:12,cursor:"pointer",border:`1px solid ${C.brd}`}}>
-      <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div><div style={{fontSize:15,fontWeight:700}}>{o.item_name}</div><div style={{fontSize:12,color:C.mut,marginTop:3}}>{o.city_from} → {o.city_to}</div></div><StatusBadge status={o.status}/></div>
-      <div style={{display:"flex",justifyContent:"space-between",paddingTop:10,borderTop:`1px solid ${C.brd}`}}><span style={{fontSize:13,color:C.mut}}>#{o.id?.slice(0,8)}</span><span style={{fontSize:15,fontWeight:700,color:C.pri}}>{o.price||"عروض"} ر.س</span></div>
-    </div>)}
-  </div></div>
-}
-
-/* ══════ MAIN APP ══════ */
-export default function KaddadApp(){
-  const[phase,setPhase]=useState("landing");// landing|roleSelect|register|login|app
-  const[role,setRole]=useState("sender");const[screen,setScreen]=useState("home");const[screenData,setScreenData]=useState<any>(null);const[user,setUser]=useState<any>(null);
-  const navigate=(t:string,d:any=null)=>{setScreen(t);setScreenData(d)};const goHome=()=>navigate("home");
-
-  if(phase==="landing") return <LandingPage onStart={()=>setPhase("roleSelect")}/>;
-  if(phase==="roleSelect") return <RoleSelectPage onSelect={r=>{setRole(r);setPhase("register")}} onBack={()=>setPhase("landing")}/>;
-  if(phase==="register") return <RegisterPage role={role} onComplete={u=>{setUser(u);setPhase("app");navigate("home")}} onBack={()=>setPhase("roleSelect")}/>;
-  if(phase==="login") return <LoginPage onLogin={u=>{setUser(u);setRole(u.role);setPhase("app");navigate("home")}} onBack={()=>setPhase("landing")}/>;
-
-  const tabs=role==="sender"?[["home","🏠","الرئيسية"],["orders","📋","طلباتي"],["createOrder","➕","طلب جديد"],["profile","👤","حسابي"]]:[["home","🏠","الرئيسية"],["orders","📋","الطلبات"],["addTrip","➕","أضف رحلة"],["profile","👤","حسابي"]];
-
-  const renderScreen=()=>{
-    switch(screen){
-      case "home": return <HomeScreen navigate={navigate} role={role} user={user}/>;
-      case "createOrder": return <CreateOrderScreen onBack={goHome} user={user} onDone={goHome}/>;
-      case "addTrip": return <AddTripScreen onBack={goHome} user={user}/>;
-      case "orderDetail": return <OrderDetailScreen order={screenData} onBack={goHome} user={user} onChat={()=>navigate("chat",screenData)}/>;
-      case "chat": return <ChatScreen orderId={screenData?.id} otherUser={{name:"المسافر"}} currentUser={user} onBack={()=>navigate("orderDetail",screenData)}/>;
-      case "orders": return <OrdersListScreen user={user} onBack={goHome} onSelect={o=>navigate("orderDetail",o)}/>;
-      case "profile": return <ProfileScreen user={user} role={role} onLogout={()=>{setPhase("landing");setUser(null)}}/>;
-      default: return <HomeScreen navigate={navigate} role={role} user={user}/>;
-    }
-  };
-
-  return <div style={{maxWidth:430,margin:"0 auto",background:C.bg,minHeight:"100vh",position:"relative"}}><style>{GCSS}</style>{renderScreen()}
-    {!["chat"].includes(screen)&&<div style={{position:"fixed",bottom:0,left:0,right:0,background:"#fff",borderTop:`1px solid ${C.brd}`,display:"flex",justifyContent:"space-around",padding:"8px 0 12px",zIndex:100,fontFamily:FONT}}>
-      {tabs.map(([id,emoji,label]:any)=><button key={id} onClick={()=>navigate(id)} style={{background:"none",border:"none",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:3,color:screen===id?C.pri:C.mut,fontFamily:FONT}}><span style={{fontSize:20,transform:screen===id?"scale(1.2)":"scale(1)",transition:"transform .15s"}}>{emoji}</span><span style={{fontSize:10,fontWeight:screen===id?700:500}}>{label}</span></button>)}
-    </div>}
-  </div>;
+  useEffect(()=>{supabase.from("orders").select("*").or(`sender_id.eq.${user.id},driver_id.eq.${user.id}`).order("created_at",{ascending:false}).then(({data}:any)=>{if(data)setOrders(data)})},[user.id]);
+  return<div style={{fontFamily:FN,direction:"rtl" as any}}><Hdr t="طلباتي" onBack={onBack}/><div style={{padding:"12px 16px 100px"}}>
+  {orders.length===0&&<div style={{padding:40,textAlign:"center" as any,color:C.mut}}>لا توجد طلبات</div>}
+  {orders.map((o:any)=><div key={o.id} onClick={()=>onPick(o)} style={{background:C.card,borderRadius:18,padding:16,marginBottom:12,cursor:"pointer",border:`1px solid ${C.brd}`}}>
+  <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div><div style={{fontSize:15,fontWeight:700}}>{o.item_name}</div><div style={{fontSize:12,color:C.mut,marginTop:3}}>{o.city_from} → {o.city_to}</div></div><Badge st={o.status}/></div>
+  <div style={{display:"flex",justifyContent:"space-between",paddingTop:10,borderTop:`1px solid ${C.brd}`}}><span style={{fontSize:13,color:C.mut}}>#{String(o.id).slice(0,8)}</span><span style={{fontSize:15,fontWeight:700,color:C.pri}}>{o.price||"—"} ر.س</span></div>
+  </div>)}</div></div>
 }
