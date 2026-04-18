@@ -313,7 +313,13 @@ function SenderHome({nav,user,unreadCount}:any){
     setLoading(true);
     const {data: ordersData} = await db.from("orders").select("*").eq("sender_id",user.id).order("created_at",{ascending:false}).limit(5);
     if(ordersData) setOrders(ordersData);
-    let q = db.from("trips").select("*,profiles(name,rating,car_make,car_model,city,total_deliveries)").is("matched_sender_id",null).eq("status","active").order("created_at",{ascending:false}).limit(20);
+
+    // Get trips for next 5 days
+    const today = new Date().toISOString().split("T")[0];
+    const future = new Date();future.setDate(future.getDate()+5);
+    const futureStr = future.toISOString().split("T")[0];
+
+    let q = db.from("trips").select("*,profiles(name,rating,car_make,car_model,city,total_deliveries)").is("matched_sender_id",null).eq("status","active").gte("trip_date",today).lte("trip_date",futureStr).order("trip_date",{ascending:true}).limit(50);
     if(filterCity) q = q.eq("city_from",filterCity);
     const {data: tripsData} = await q;
     if(tripsData) setTrips(tripsData);
@@ -376,14 +382,14 @@ function SenderHome({nav,user,unreadCount}:any){
     )}
 
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",margin:"28px 0 14px"}}>
-      <h3 style={{margin:0,fontSize:17,fontWeight:700}}>🚗 كدّادين متاحين {trips.length>0 && <span style={{fontSize:13,color:C.pri,fontWeight:600}}>({trips.length})</span>}</h3>
+      <h3 style={{margin:0,fontSize:17,fontWeight:700}}>🚗 رحلات الأيام الـ5 القادمة {trips.length>0 && <span style={{fontSize:13,color:C.pri,fontWeight:600}}>({trips.length})</span>}</h3>
       <button onClick={loadData} style={{background:C.priL,border:"none",borderRadius:10,padding:"6px 12px",fontSize:12,fontWeight:600,color:C.pri,fontFamily:FT,cursor:"pointer"}}>🔄 تحديث</button>
     </div>
 
     <div style={{marginBottom:14}}>
-      <div style={{fontSize:13,color:C.mut,marginBottom:8,fontFamily:FT}}>فلتر بمدينة الانطلاق:</div>
+      <div style={{fontSize:13,color:C.mut,marginBottom:8,fontFamily:FT}}>فلتر بمدينة الانطلاق (اختياري):</div>
       <div style={{display:"flex",gap:8,flexWrap:"wrap" as any}}>
-        <button onClick={()=>setFilterCity("")} style={{padding:"6px 14px",borderRadius:20,border:"1px solid "+(filterCity===""?C.pri:C.brd),background:filterCity===""?C.priL:"#fff",color:filterCity===""?C.pri:C.mut,fontSize:12,fontWeight:600,fontFamily:FT,cursor:"pointer"}}>الكل</button>
+        <button onClick={()=>setFilterCity("")} style={{padding:"6px 14px",borderRadius:20,border:"1px solid "+(filterCity===""?C.pri:C.brd),background:filterCity===""?C.priL:"#fff",color:filterCity===""?C.pri:C.mut,fontSize:12,fontWeight:600,fontFamily:FT,cursor:"pointer"}}>🌍 كل المدن</button>
         {[user.city,...CITIES.filter((c:string)=>c!==user.city)].slice(0,6).map((city:string)=>
           <button key={city} onClick={()=>setFilterCity(city)} style={{padding:"6px 14px",borderRadius:20,border:"1px solid "+(filterCity===city?C.pri:C.brd),background:filterCity===city?C.priL:"#fff",color:filterCity===city?C.pri:C.mut,fontSize:12,fontWeight:600,fontFamily:FT,cursor:"pointer"}}>{city}</button>
         )}
@@ -391,9 +397,10 @@ function SenderHome({nav,user,unreadCount}:any){
     </div>
 
     {loading && trips.length===0 && <div style={{padding:20,textAlign:"center" as any,color:C.mut}}>جاري التحميل...</div>}
-    {!loading && trips.length===0 && <div style={{background:C.card,borderRadius:18,padding:24,textAlign:"center" as any,border:"1px solid "+C.brd,color:C.mut}}>لا يوجد كدّادين متاحين {filterCity?"من "+filterCity:""} حالياً</div>}
-    {trips.map((t:any)=>
-      <div key={t.id} style={{background:C.card,borderRadius:18,padding:16,marginBottom:12,border:"1px solid "+C.brd}}>
+    {!loading && trips.length===0 && <div style={{background:C.card,borderRadius:18,padding:24,textAlign:"center" as any,border:"1px solid "+C.brd,color:C.mut}}>📭 لا توجد رحلات {filterCity?"من "+filterCity:""} خلال الأيام الخمسة القادمة</div>}
+    {trips.map((t:any)=>{
+      const dayLabel = t.trip_date===new Date().toISOString().split("T")[0] ? "اليوم" : t.trip_date;
+      return <div key={t.id} style={{background:C.card,borderRadius:18,padding:16,marginBottom:12,border:"1px solid "+C.brd}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
           <div style={{flex:1}}>
             <div style={{fontSize:15,fontWeight:700,display:"flex",alignItems:"center",gap:6,flexWrap:"wrap" as any}}>
@@ -401,7 +408,7 @@ function SenderHome({nav,user,unreadCount}:any){
             </div>
             <div style={{fontSize:13,color:C.mut,marginTop:5,fontWeight:600}}>{t.city_from} → {t.city_to}</div>
             <div style={{fontSize:12,color:C.mut,marginTop:2}}>{t.profiles?.car_make} {t.profiles?.car_model} · {t.available_space}</div>
-            <div style={{fontSize:12,color:C.mut}}>📅 {t.trip_date||""} {t.trip_time?"⏰ "+t.trip_time:""}</div>
+            <div style={{fontSize:12,color:C.pri,fontWeight:600,marginTop:3}}>📅 {dayLabel} {t.trip_time?"⏰ "+t.trip_time:""}</div>
           </div>
           <div style={{textAlign:"center" as any,background:C.priL,borderRadius:12,padding:"8px 12px",marginRight:8}}>
             <div style={{fontSize:18,fontWeight:800,color:C.pri}}>{t.min_price||50}</div>
@@ -409,8 +416,8 @@ function SenderHome({nav,user,unreadCount}:any){
           </div>
         </div>
         <button onClick={()=>pickTrip(t)} style={{width:"100%",padding:12,background:C.pri,color:"#fff",border:"none",borderRadius:14,fontSize:15,fontWeight:700,fontFamily:FT,cursor:"pointer"}}>اختر هالكدّاد ✅</button>
-      </div>
-    )}
+      </div>;
+    })}
   </div>;
 }
 
@@ -424,7 +431,13 @@ function DriverHome({nav,user,unreadCount}:any){
     setLoading(true);
     const {data: tripsData} = await db.from("trips").select("*").eq("driver_id",user.id).order("created_at",{ascending:false}).limit(5);
     if(tripsData) setTrips(tripsData);
-    let q = db.from("orders").select("*,profiles!orders_sender_id_fkey(name,city)").is("matched_driver_id",null).eq("status","pending").order("created_at",{ascending:false}).limit(20);
+
+    // Get orders for next 5 days
+    const today = new Date().toISOString().split("T")[0];
+    const future = new Date();future.setDate(future.getDate()+5);
+    const futureStr = future.toISOString().split("T")[0];
+
+    let q = db.from("orders").select("*,profiles!orders_sender_id_fkey(name,city)").is("matched_driver_id",null).eq("status","pending").gte("delivery_date",today).lte("delivery_date",futureStr).order("delivery_date",{ascending:true}).limit(50);
     if(filterCity) q = q.eq("city_from",filterCity);
     const {data: ordersData} = await q;
     if(ordersData) setOrders(ordersData);
@@ -484,14 +497,14 @@ function DriverHome({nav,user,unreadCount}:any){
     )}
 
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",margin:"28px 0 14px"}}>
-      <h3 style={{margin:0,fontSize:17,fontWeight:700}}>📦 طلبات تنتظر كدّاد {orders.length>0 && <span style={{fontSize:13,color:C.acc,fontWeight:600}}>({orders.length})</span>}</h3>
+      <h3 style={{margin:0,fontSize:17,fontWeight:700}}>📦 طلبات الأيام الـ5 القادمة {orders.length>0 && <span style={{fontSize:13,color:C.acc,fontWeight:600}}>({orders.length})</span>}</h3>
       <button onClick={loadData} style={{background:C.accL,border:"none",borderRadius:10,padding:"6px 12px",fontSize:12,fontWeight:600,color:C.acc,fontFamily:FT,cursor:"pointer"}}>🔄 تحديث</button>
     </div>
 
     <div style={{marginBottom:14}}>
-      <div style={{fontSize:13,color:C.mut,marginBottom:8,fontFamily:FT}}>فلتر بمدينة الانطلاق:</div>
+      <div style={{fontSize:13,color:C.mut,marginBottom:8,fontFamily:FT}}>فلتر بمدينة الانطلاق (اختياري):</div>
       <div style={{display:"flex",gap:8,flexWrap:"wrap" as any}}>
-        <button onClick={()=>setFilterCity("")} style={{padding:"6px 14px",borderRadius:20,border:"1px solid "+(filterCity===""?C.acc:C.brd),background:filterCity===""?C.accL:"#fff",color:filterCity===""?C.acc:C.mut,fontSize:12,fontWeight:600,fontFamily:FT,cursor:"pointer"}}>الكل</button>
+        <button onClick={()=>setFilterCity("")} style={{padding:"6px 14px",borderRadius:20,border:"1px solid "+(filterCity===""?C.acc:C.brd),background:filterCity===""?C.accL:"#fff",color:filterCity===""?C.acc:C.mut,fontSize:12,fontWeight:600,fontFamily:FT,cursor:"pointer"}}>🌍 كل المدن</button>
         {[user.city,...CITIES.filter((c:string)=>c!==user.city)].slice(0,6).map((city:string)=>
           <button key={city} onClick={()=>setFilterCity(city)} style={{padding:"6px 14px",borderRadius:20,border:"1px solid "+(filterCity===city?C.acc:C.brd),background:filterCity===city?C.accL:"#fff",color:filterCity===city?C.acc:C.mut,fontSize:12,fontWeight:600,fontFamily:FT,cursor:"pointer"}}>{city}</button>
         )}
@@ -499,14 +512,15 @@ function DriverHome({nav,user,unreadCount}:any){
     </div>
 
     {loading && orders.length===0 && <div style={{padding:20,textAlign:"center" as any,color:C.mut}}>جاري التحميل...</div>}
-    {!loading && orders.length===0 && <div style={{background:C.card,borderRadius:18,padding:24,textAlign:"center" as any,border:"1px solid "+C.brd,color:C.mut}}>لا توجد طلبات {filterCity?"من "+filterCity:""} حالياً</div>}
-    {orders.map((o:any)=>
-      <div key={o.id} style={{background:C.card,borderRadius:18,padding:16,marginBottom:12,border:"1px solid "+C.brd}}>
+    {!loading && orders.length===0 && <div style={{background:C.card,borderRadius:18,padding:24,textAlign:"center" as any,border:"1px solid "+C.brd,color:C.mut}}>📭 لا توجد طلبات {filterCity?"من "+filterCity:""} خلال الأيام الخمسة القادمة</div>}
+    {orders.map((o:any)=>{
+      const dayLabel = o.delivery_date===new Date().toISOString().split("T")[0] ? "اليوم" : o.delivery_date;
+      return <div key={o.id} style={{background:C.card,borderRadius:18,padding:16,marginBottom:12,border:"1px solid "+C.brd}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
           <div style={{flex:1}}>
             <div style={{fontSize:15,fontWeight:700}}>{o.item_name} <span style={{fontSize:12,color:C.mut}}>({o.item_size})</span></div>
             <div style={{fontSize:13,color:C.mut,marginTop:3,fontWeight:600}}>{o.city_from} → {o.city_to}</div>
-            <div style={{fontSize:12,color:C.mut,marginTop:2}}>📅 {o.delivery_date||""}</div>
+            <div style={{fontSize:12,color:C.acc,marginTop:2,fontWeight:600}}>📅 {dayLabel}</div>
             <div style={{fontSize:12,color:C.mut}}>👤 {o.profiles?.name||"مرسل"}</div>
             {o.is_fragile && <div style={{fontSize:12,color:"#92400E",fontWeight:700,marginTop:4}}>⚠️ قابل للكسر</div>}
             {o.pickup_type==="door" && <div style={{fontSize:12,color:C.acc,fontWeight:600,marginTop:2}}>🚪 يستلم من العنوان</div>}
@@ -518,8 +532,8 @@ function DriverHome({nav,user,unreadCount}:any){
         </div>
         {o.item_image && <img src={o.item_image} alt="" style={{width:"100%",borderRadius:12,maxHeight:120,objectFit:"cover" as any,marginBottom:10}}/>}
         <button onClick={()=>pickOrder(o)} style={{width:"100%",padding:12,background:C.acc,color:"#fff",border:"none",borderRadius:14,fontSize:15,fontWeight:700,fontFamily:FT,cursor:"pointer"}}>قبول الطلب 🚗</button>
-      </div>
-    )}
+      </div>;
+    })}
   </div>;
 }
 
