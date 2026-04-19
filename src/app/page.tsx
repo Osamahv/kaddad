@@ -437,7 +437,7 @@ function DriverHome({nav,user,unreadCount}:any){
     const future = new Date();future.setDate(future.getDate()+5);
     const futureStr = future.toISOString().split("T")[0];
 
-    let q = db.from("orders").select("*,profiles:sender_id(name,city)").is("matched_driver_id",null).eq("status","pending").gte("delivery_date",today).lte("delivery_date",futureStr).order("delivery_date",{ascending:true}).limit(50);
+    let q = db.from("orders").select("*,profiles!orders_sender_id_fkey(name,city)").is("matched_driver_id",null).eq("status","pending").gte("delivery_date",today).lte("delivery_date",futureStr).order("delivery_date",{ascending:true}).limit(50);
     if(filterCity) q = q.eq("city_from",filterCity);
     const {data: ordersData} = await q;
     if(ordersData) setOrders(ordersData);
